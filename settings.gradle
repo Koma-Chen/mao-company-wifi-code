@@ -1,0 +1,3 @@
+include ':pushSDK'
+include ':smartHome'
+include ':wiFiWeather'

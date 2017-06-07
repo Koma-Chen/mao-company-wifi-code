@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Wi-FiWeather1.iml" filepath="$PROJECT_DIR$/Wi-FiWeather1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pushSDK/pushSDK.iml" filepath="$PROJECT_DIR$/pushSDK/pushSDK.iml" />
+      <module fileurl="file://$PROJECT_DIR$/smartHome/smartHome.iml" filepath="$PROJECT_DIR$/smartHome/smartHome.iml" />
+      <module fileurl="file://$PROJECT_DIR$/wiFiWeather/wiFiWeather.iml" filepath="$PROJECT_DIR$/wiFiWeather/wiFiWeather.iml" />
+    </modules>
+  </component>
+</project>
