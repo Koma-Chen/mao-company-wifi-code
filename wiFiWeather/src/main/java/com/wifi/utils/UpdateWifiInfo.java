@@ -39,7 +39,7 @@ public class UpdateWifiInfo implements Runnable {
     private boolean yahoo_date = true;
     private Context mContext;
     private boolean isFirst = true;
-    SqliteOpenHelper mSqliteOpenHelper;
+    private SqliteOpenHelper mSqliteOpenHelper;
 
     /**
      * @param content  传输的内容

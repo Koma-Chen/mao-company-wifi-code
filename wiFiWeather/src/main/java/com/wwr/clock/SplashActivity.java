@@ -1,21 +1,7 @@
 package com.wwr.clock;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import com.mpw.constant.Constant;
-import com.umeng.message.PushAgent;
-import com.wifi.utils.UpdataInfo;
-import com.wifi.utils.ParseXml;
-
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -28,6 +14,19 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.mpw.constant.Constant;
+import com.umeng.message.PushAgent;
+import com.wifi.utils.ParseXml;
+import com.wifi.utils.UpdataInfo;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class SplashActivity extends Activity {
 	private ProgressDialog progressDialog;

@@ -173,6 +173,7 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
     Socket socket = null;
     private UpdateWifiInfo mUwi;
     private SqliteOpenHelper sqliteOpenHelper;
+    private SharedPreferences sp;
 
     // private String[] sex = { "3 "+getString(R.string.hour),
     // "6 "+getString(R.string.hour), "12 "+getString(R.string.hour),
@@ -234,6 +235,8 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
         mainLayout = (View) findViewById(R.id.view); // LinearLayout控件
         context = MainActivity.this;
         tv_alarm_set = (LinearLayout) findViewById(R.id.tv_alarm_set);
+        sp = getSharedPreferences("pass",MODE_PRIVATE);
+
 
         display = (Button) findViewById(R.id.display);
 
@@ -667,6 +670,9 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                         Log.e("apPassword", "" + apPassword);
                         new EsptouchAsyncTask2().execute(apSsid, apBssid,
                                 apPassword);
+
+                        Editor editor = sp.edit();
+                        editor.putString("pass",apPassword).commit();
                     }
                 } else {
                     AlertDialog.Builder builder = new AlertDialog.Builder(
@@ -694,10 +700,11 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                 if (networkInfo != null && networkInfo.isConnected()) {
                     mSsidEditText.setText(getSSid());
 
-                    SharedPreferences SPremberPassword = getSharedPreferences(
-                            "remberPassword", Activity.MODE_PRIVATE);
-                    mPasswordEditText.setText(SPremberPassword.getString(
-                            getSSid(), ""));
+//                    SharedPreferences SPremberPassword = getSharedPreferences(
+//                            "remberPassword", Activity.MODE_PRIVATE);
+//                    mPasswordEditText.setText(SPremberPassword.getString(
+//                            getSSid(), ""));
+                    mPasswordEditText.setText(sp.getString("pass",""));
 
                     SplashActivity.downImg();
                 } else {
@@ -955,6 +962,8 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                     mac = result.getBssid();
                     // result.getInetAddress(); //获得IP地址
                     Constant.mlistIndoor.clear();
+                    Constant.mlistOutdoor.clear();
+
 
                     // 请求成功 则将请求返回的数据保存起来
                     SharedPreferences macSP = getSharedPreferences("test",
@@ -1518,8 +1527,8 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                 SQLiteDatabase db = sqliteOpenHelper.getWritableDatabase();
                 ContentValues values = new ContentValues();
                 values.put("haveOut",1);
-                db.insert("haveOutMoudle",null,values);
-                Cursor cursor = db.query("haveOutMoudle",null,null,null,null,null,null);
+                db.insert("out",null,values);
+                Cursor cursor = db.query("out",null,null,null,null,null,null);
                 if (cursor.moveToFirst()){
                     haveOutMoudle = cursor.getInt(cursor.getColumnIndex("haveOut"));
                     Log.d("chenhang", haveOutMoudle + "");
