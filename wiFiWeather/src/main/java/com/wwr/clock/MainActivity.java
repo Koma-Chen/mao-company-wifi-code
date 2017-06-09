@@ -1585,6 +1585,7 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                     }
                 }
 
+                db.close();
                 pop.dismiss();
             }
         });

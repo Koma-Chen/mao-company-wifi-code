@@ -5,7 +5,6 @@
       <module fileurl="file://$PROJECT_DIR$/Wi-FiWeather1.iml" filepath="$PROJECT_DIR$/Wi-FiWeather1.iml" />
       <module fileurl="file://$PROJECT_DIR$/pushSDK/pushSDK.iml" filepath="$PROJECT_DIR$/pushSDK/pushSDK.iml" />
       <module fileurl="file://$PROJECT_DIR$/smartHome/smartHome.iml" filepath="$PROJECT_DIR$/smartHome/smartHome.iml" />
-      <module fileurl="file://$PROJECT_DIR$/test/test.iml" filepath="$PROJECT_DIR$/test/test.iml" />
       <module fileurl="file://$PROJECT_DIR$/wiFiWeather/wiFiWeather.iml" filepath="$PROJECT_DIR$/wiFiWeather/wiFiWeather.iml" />
     </modules>
   </component>
