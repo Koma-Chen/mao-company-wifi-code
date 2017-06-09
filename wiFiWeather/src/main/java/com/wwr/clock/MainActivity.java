@@ -185,6 +185,8 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
 
         setContentView(R.layout.mian_activity);
 
+        //------------------我是一个测试用例
+
         PushAgent.getInstance(context).onAppStart();
 
         iv_setting = (ImageView) findViewById(R.id.iv_setting);
