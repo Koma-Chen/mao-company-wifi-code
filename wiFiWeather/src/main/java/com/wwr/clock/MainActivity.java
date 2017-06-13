@@ -286,9 +286,7 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
 
                 if (name != null && !TextUtils.isEmpty(name)
                         && !"No Wifi connection".equals(name)) {
-
                 }
-                ;
             }
 
             @Override
@@ -674,7 +672,8 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                                 apPassword);
 
                         Editor editor = sp.edit();
-                        editor.putString("pass",apPassword).commit();
+                        String ssidName = mSsidEditText.getText().toString().trim();
+                        editor.putString(ssidName,apPassword).commit();
                     }
                 } else {
                     AlertDialog.Builder builder = new AlertDialog.Builder(
@@ -706,7 +705,8 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
 //                            "remberPassword", Activity.MODE_PRIVATE);
 //                    mPasswordEditText.setText(SPremberPassword.getString(
 //                            getSSid(), ""));
-                    mPasswordEditText.setText(sp.getString("pass",""));
+                    String ssidName = mSsidEditText.getText().toString().trim();
+                    mPasswordEditText.setText(sp.getString(ssidName,""));
 
                     SplashActivity.downImg();
                 } else {
