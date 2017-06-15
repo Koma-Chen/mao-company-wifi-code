@@ -1,0 +1,40 @@
+[33mcommit 9e5b71a7e85f93df9e665f533337d3edbc79c078[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: chen <644388262@qq.com>
+Date:   Tue Jun 13 10:52:20 2017 +0800
+
+    修改了密码保存的问题
+
+[1mdiff --git a/wiFiWeather/src/main/java/com/wwr/clock/MainActivity.java b/wiFiWeather/src/main/java/com/wwr/clock/MainActivity.java[m
+[1mindex 876273f..f16c6e6 100644[m
+[1m--- a/wiFiWeather/src/main/java/com/wwr/clock/MainActivity.java[m
+[1m+++ b/wiFiWeather/src/main/java/com/wwr/clock/MainActivity.java[m
+[36m@@ -286,9 +286,7 @@[m [mpublic class MainActivity extends Activity implements OnSmartLinkListener {[m
+ [m
+                 if (name != null && !TextUtils.isEmpty(name)[m
+                         && !"No Wifi connection".equals(name)) {[m
+[31m-[m
+                 }[m
+[31m-                ;[m
+             }[m
+ [m
+             @Override[m
+[36m@@ -674,7 +672,8 @@[m [mpublic class MainActivity extends Activity implements OnSmartLinkListener {[m
+                                 apPassword);[m
+ [m
+                         Editor editor = sp.edit();[m
+[31m-                        editor.putString("pass",apPassword).commit();[m
+[32m+[m[32m                        String ssidName = mSsidEditText.getText().toString().trim();[m
+[32m+[m[32m                        editor.putString(ssidName,apPassword).commit();[m
+                     }[m
+                 } else {[m
+                     AlertDialog.Builder builder = new AlertDialog.Builder([m
+[36m@@ -706,7 +705,8 @@[m [mpublic class MainActivity extends Activity implements OnSmartLinkListener {[m
+ //                            "remberPassword", Activity.MODE_PRIVATE);[m
+ //                    mPasswordEditText.setText(SPremberPassword.getString([m
+ //                            getSSid(), ""));[m
+[31m-                    mPasswordEditText.setText(sp.getString("pass",""));[m
+[32m+[m[32m                    String ssidName = mSsidEditText.getText().toString().trim();[m
+[32m+[m[32m                    mPasswordEditText.setText(sp.getString(ssidName,""));[m
+ [m
+                     SplashActivity.downImg();[m
+                 } else {[m
