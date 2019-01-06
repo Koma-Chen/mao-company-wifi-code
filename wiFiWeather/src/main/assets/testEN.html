@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+            <title>Configure the failed help page</title>
+            
+            <script language="JavaScript" type="text/JavaScript"></script>
+            
+            <script type="text/javascript">
+                //显示文字
+                function showdiv(targetid,objN){
+                    
+                    var target=document.getElementById(targetid);
+                    var clicktext=document.getElementById(objN)
+                    
+                    //显示div
+                    target.style.display="block";
+                    //隐藏按键
+                    clicktext.style.display="none";
+                }
+            //添加画布、图片、文字
+            function canvasAddImgAndWord(){
+                
+                var aa = document.getElementById('aa');
+                var bb = aa.getContext('2d');
+                bb.fillStyle = '#00adee';    //   填充颜色
+                bb.fillRect(0,0,aa.width, aa.height);
+
+                var img1 = new Image;
+                img1.src="update_error_left.png"
+                
+                img1.onload = function () {
+                    bb.drawImage(img1, 0,0,aa.height/3,aa.height);
+                }
+                
+                var img2 = new Image;
+                img2.src="update_error_right.png"
+                
+                img2.onload = function () {
+                    bb.drawImage(img2,aa.width - aa.height/5 ,aa.height/4,aa.height/5,aa.height/2)
+                }
+                
+                bb.fillStyle = '#fff';   // 文字填充颜色
+                //中文字体的大小
+<!--                bb.font = '50px/100% Microsoft ';-->
+                //英文字体的大小
+                bb.font = '40px/100% Microsoft ';
+                //在canvas绘制文本自动换行
+<!--                var str = "设备网络配置失败"-->
+                var str = "No  equipment  in  the  configuration state"
+                var lineWidth = 0;
+                var canvasWidth = aa.width;//计算canvas的宽度
+                //绘制中文字体距离canvas顶部初始的高度
+<!--                var initHeight=aa.height/2;-->
+                //绘制英文字体距离canvas顶部初始的高度
+                var initHeight=aa.height/3;
+                var lastSubStrIndex= 0; //每次开始截取的字符串的索引
+                for(var i=0;i<str.length;i++){
+                    lineWidth+=bb.measureText(str[i]).width;
+                    if(lineWidth>canvasWidth){
+                        bb.fillText(str.substring(lastSubStrIndex,i),aa.height/3,initHeight,aa.width - aa.height/2);//绘制截取部分
+                        //中文字体的高度
+<!--                        initHeight+=aa.height/2.5;-->
+                        //英文字体的高度
+                        initHeight+=aa.height/3.5;
+                        lineWidth=0;
+                        lastSubStrIndex=i;
+                    }
+                    if(i==str.length-1){//绘制剩余部分
+                        bb.fillText(str.substring(lastSubStrIndex,i+1),aa.height/3,initHeight,aa.width - aa.height/2);
+                    }
+                }
+                
+                bb.stroke();
+            }
+            
+            </script>
+            
+            <style type="text/css">
+                
+                a { text-decoration: none; }
+                
+                #showtext { cursor: hand; cursor:pointer;}
+                #contentid { margin-bottom: 10px; width:100%;}
+                .none { display: none; }
+                
+                .demo{width:760px; margin:20px auto 0 auto; height:70px;}
+                .button {
+                    display: inline-block;
+                    outline: none;
+                    cursor: pointer;
+                    text-align: center;
+                    text-decoration: none;
+                    font: 16px/100% 'Microsoft yahei',Arial, Helvetica, sans-serif;
+                    padding: 10px 100px 10px;
+                    text-shadow: 0 1px 1px rgba(0,0,0,.3);
+                    -webkit-border-radius: .5em;
+                    -moz-border-radius: .5em;
+                    border-radius: .5em;
+                    -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+                    -moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+                    box-shadow: 0 1px 2px rgba(0,0,0,.2);
+                }
+            .button:hover {
+                text-decoration: none;
+            }
+            .button:active {
+                position: relative;
+                top: 1px;
+            }
+            
+            /* blue */
+            .blue {
+                color: #d9eef7;
+                border: solid 1px #0076a3;
+                background: #0095cd;
+                background: -webkit-gradient(linear, left top, left bottom, from(#00adee), to(#0078a5));
+                background: -moz-linear-gradient(top,  #00adee,  #0078a5);
+                filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#00adee', endColorstr='#0078a5');
+            }
+            .blue:hover {
+                background: #007ead;
+                background: -webkit-gradient(linear, left top, left bottom, from(#0095cc), to(#00678e));
+                background: -moz-linear-gradient(top,  #0095cc,  #00678e);
+                filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#0095cc', endColorstr='#00678e');
+            }
+            .blue:active {
+                color: #80bed6;
+                background: -webkit-gradient(linear, left top, left bottom, from(#0078a5), to(#00adee));
+                background: -moz-linear-gradient(top,  #0078a5,  #00adee);
+                filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#0078a5', endColorstr='#00adee');
+            }
+            </style>
+            
+    </head>
+    
+    <body onload="canvasAddImgAndWord()">
+
+    <canvas id="aa" style=" height: 80px;width: 100%;margin: 0;padding: 0;display: block;"></canvas>
+
+        <p >
+        <font size="4" face="arial" color="black">
+            Please follow these steps to troubleshoot possible problems and try again
+        </font>
+        </p>
+        <p>
+        1. Ensure that your equipment has entered the distribution network mode;
+        &nbsp;
+        </p>
+        <p>
+        2. Ensure that the input wifi password is correct;
+        &nbsp;
+        </p>
+        <p>
+        3. make sure the phone is connected to the wireless router 2.4ghz network;
+        &nbsp;
+        </p>
+        <p>
+        4. ensure that the wireless router has turned off the black and white list (MAC address filtering) function;
+        &nbsp;
+        </p>
+        <p>
+        5. Please try to set the wireless router to 11bg or 20Mhz bandwidth for distribution network; After the network is successful, reset the router to the original configuration;
+        &nbsp;
+        </p>
+        
+        <div id="contentid" class="none">
+            <p>
+            6. if the connected wireless router is a dual-frequency router (2.4ghz /5GHz), make sure the phone is connected to the 2.4ghz network;
+            &nbsp;
+            </p>
+            <p>
+            7. no wireless router wireless network name includes Chinese characters;
+            &nbsp;
+            </p>
+            <p>
+            8. try to connect other wireless routers to rematch the network;
+            &nbsp;
+            </p>
+            
+        </div>
+        <p style="color:blue" id="showtext" onClick="showdiv('contentid','showtext')" >
+        More help...</p>
+        <div style="text-align:center; width:100%;height:100%;margin:0px; " class="demo">
+            <button class="button blue" onclick = "window.Android.toFinish()"> Retry </button>
+        </div>
+    </body>
+</html>

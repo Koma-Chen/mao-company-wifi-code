@@ -36,7 +36,8 @@
     <TimePicker   
         android:id="@+id/timePic1"  
         android:layout_height="wrap_content"  
-        android:layout_width="match_parent"/>  
+        android:layout_width="match_parent"
+        android:timePickerMode="spinner"/>
     <Button   
         android:visibility="gone"
         android:id="@+id/buttone1"  

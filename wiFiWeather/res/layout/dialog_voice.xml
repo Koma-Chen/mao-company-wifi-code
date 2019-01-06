@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>  
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"  
+    android:layout_width="fill_parent"  
+    android:layout_height="fill_parent"  
+    android:background="@android:color/transparent"  
+    android:gravity="center"  
+    android:orientation="vertical" >  
+  
+    <LinearLayout  
+        android:id="@+id/LinearLayout"  
+        android:layout_width="wrap_content"  
+        android:layout_height="wrap_content"  
+        android:gravity="center"  
+        android:orientation="vertical" >  
+  
+        
+        <ImageView 
+            android:id="@+id/iv_voice"
+            android:src="@drawable/voice_empty"
+            android:layout_width="80dp"  
+            android:layout_height="80dp"  
+            />
+   
+  
+        <TextView  
+            android:gravity="center"
+            android:id="@+id/tv"  
+            android:layout_width="wrap_content"  
+            android:layout_height="wrap_content"  
+            android:layout_gravity="center"  
+            android:paddingTop="10dp"  
+            android:text="开始3秒钟不说话自动结束\n松开或间隔1秒不说话为结束说话"
+            android:textSize="16sp"
+            android:textColor="#DDDDDD"  
+             />  
+    </LinearLayout>  
+  
+</LinearLayout> 

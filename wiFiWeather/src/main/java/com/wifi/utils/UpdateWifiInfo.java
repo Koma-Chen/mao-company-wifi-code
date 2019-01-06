@@ -8,6 +8,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.mpw.constant.InfoBean;
+import com.mpw.constant.MyApplication;
 import com.wwr.clock.temp.SqliteOpenHelper;
 
 import org.json.JSONException;
@@ -21,6 +22,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.Socket;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -73,10 +75,18 @@ public class UpdateWifiInfo implements Runnable {
             if ("00".equals(cn)) {
 
                 System.out.println("国外城市");
-                final String yahoo = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22"
-                        + city.replace(" ", "%20")
+                final String yahoo = "https://query.yahooapis" +
+                        ".com/v1/public/yql?q=select%20*%20from%20weather" +
+                        ".forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)" +
+                        "%20where%20text%3D%22"
+                        + URLEncoder.encode(city)
                         + "%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys";
                 System.out.println(yahoo);
+
+//                String urlDeCode = URLDecoder.decode(urlEnCode,"UTF-8");
+//                String deStr = KmService.deCryptKey(enStr);
+
+
                 URL url1;
                 url1 = new URL(yahoo);
                 HttpURLConnection conn1 = (HttpURLConnection) url1
@@ -86,20 +96,21 @@ public class UpdateWifiInfo implements Runnable {
                 conn1.connect();
 
                 is1 = conn1.getInputStream();
-
                 BufferedReader br1 = new BufferedReader(new InputStreamReader(is1));
+
                 StringBuffer sb1 = new StringBuffer();
                 String str1;
                 while ((str1 = br1.readLine()) != null) {
                     sb1.append(str1);
                 }
 
+
                 System.out.println(sb1.toString());
                 if ("{".equals(String.valueOf(sb1.toString().charAt(0)))) { // 返回的是JSon数据
                     System.out.println("是json数据");
 
                     JSONObject json = new JSONObject(sb1.toString());
-                    if (json.getString("query") == null) { // query为空
+                    if (json.getString("query") == null && json.getString("query").length()>200) { // query为空
 
                         System.out.println("query为空");
                         yahoo_date = false;
@@ -126,6 +137,8 @@ public class UpdateWifiInfo implements Runnable {
                         } else {// 有具体的返回结果
 //							System.out.println("count不为0");
                             content += "" + sb1.toString() + "##";
+//                            if (MyApplication.time >= 4)
+//                                content += "" + "HTML##" + MyApplication.json + "##";
                             System.out.println("数据正常       出来了" + content);
                         }
                     }
@@ -145,7 +158,7 @@ public class UpdateWifiInfo implements Runnable {
 
 //			System.out.println("刚改-----	"+content);
 
-            s = new Socket("120.25.207.192", 8818);
+            s = new Socket(MyApplication.server, MyApplication.port);
             // s = new Socket("192.168.0.110", 8818);
             System.out.println("打开socket");
 
@@ -153,10 +166,13 @@ public class UpdateWifiInfo implements Runnable {
                 System.out.println("没打开");
             }
             os = s.getOutputStream();
+
             is = s.getInputStream();
             Log.e("111", "11111	--" + content);
 
-            os.write(content.getBytes());
+            TestRSA.main(mContext, content);
+            Log.d("koma===RSA", MyApplication.data);
+            os.write(MyApplication.data.getBytes());
 
             os.flush();
             s.shutdownOutput();
@@ -178,16 +194,13 @@ public class UpdateWifiInfo implements Runnable {
             StringBuilder sb = new StringBuilder();
 
             // Thread.sleep(2000); //等两秒 如果没有
+            Log.d("koma===available", is.available()+"");
             while (is.available() == 0) {
                 if ((System.currentTimeMillis() - startTime) > 5 * 1000) {
                     handler.sendEmptyMessage(-2);
                     return;
                 }
             }
-            // if(is.available()==0){
-            // handler.sendEmptyMessage(-2);
-            // return;
-            // }
 
             System.out.println("有没有数据-----------" + is.available());
             while ((readBytes = is.read(buffer)) > 0) {
@@ -195,12 +208,35 @@ public class UpdateWifiInfo implements Runnable {
             }
 
             System.out.println("从服务器获得的数据是++++++++++++++++++" + sb.toString());
+            String backInfo = sb.toString();
+            //从服务器发过来的加密的数据
+            if (backInfo.startsWith("##")){
+                byte[] decode = Base64Utils.decode(sb.toString().substring(2,sb.toString().length()-2));
+                byte[] tempBytes = RSAUtils.decryptByPrivateKey(decode, MyApplication
+                        .jiemikey);
+
+                backInfo = new String(tempBytes,"UTF-8");
+                System.out.println("从服务器获得的解密后的数据是++++++++++++++++++" + backInfo);
+
+                if (backInfo.contains("Error")){
+                    String[] temp = backInfo.split("-");
+                    Message message = new Message();
+                    Log.d("koma===dialog111",temp[1]);
+                    message.what = -4;
+                    message.obj = temp[1];
+                    handler.sendMessage(message);
+                    return;
+                }
+            }
+
+
 
             // 获得了数据 对数据进行处理
-            String backInfo = sb.toString();
+
             Message msg = new Message();
             if (backInfo.isEmpty()) {
                 handler.sendEmptyMessage(-1);
+//                mContext.sendBroadcast(new Intent("com.chenhang.b"));
             } else {
                 msg.what = 1;
                 Log.e("返回的信息是", backInfo);
@@ -211,68 +247,29 @@ public class UpdateWifiInfo implements Runnable {
                     } else {
                         strs[2] = strs[2].substring(0, 2);
                     }
-
                     InfoBean ib = new InfoBean();
                     ib.setTime(getNowTime());
-                    // 将数据解析之后存入对象中去
                     ib.setTime(getNowTime());
-                    // “--.-” 设备上没有相应模块 LL最低值 HH最高值
-//					if ("--.-".equals(strs[0])) {
-//						ib.setTempC(-99.0);
-//					} else if ("LL.L".equals(strs[0])) {
-//						ib.setTempC(-20.0);
-//					} else if ("HH.H".equals(strs[0])) {
-//						ib.setTempC(50.0);
-//					} else if ("null".equals(strs[0])) {
-//						ib.setTempC(-99.0);
-//					} else {
-//						ib.setTempC(Double.parseDouble(strs[0]));
-//					}
-//					ib.setStrC(strs[0]);
-//					if ("--.-".equals(strs[1])) {
-//						ib.setTempF(-99.0);
-//					} else if ("LL.L".equals(strs[1])) {
-//						ib.setTempF(-4.0);
-//					} else if ("HH.H".equals(strs[1])) {
-//						ib.setTempF(122.0);
-//					} else if ("null".equals(strs[1])) {
-//						ib.setTempF(-99.0);
-//					} else {
-//						ib.setTempF(Double.parseDouble(strs[1]));
-//					}
-//					ib.setStrF(strs[1]);
-//					if ("--".equals(strs[2])) {
-//						ib.setHumidity(-99);
-//					} else if ("LL".equals(strs[2])) {
-//						ib.setHumidity(20);
-//					} else if ("HH".equals(strs[2])) {
-//						ib.setHumidity(95);
-//					} else if ("null".equals(strs[2])) {
-//						ib.setHumidity(-99);
-//					} else {
-//						ib.setHumidity(Integer.parseInt(strs[2]));
-//					}
-//					ib.setStrH(strs[2]);
-
-
 //                  这里主要是判断设备上有没有室外温度的模块，如果有，在数据库中更新它的值为0，
 //                  haveOut默认值我给的是1，结合主界面的点击事件；--by chenhang
+                    Log.d("koma", strs[3] + "");
                     SQLiteDatabase db = mSqliteOpenHelper.getWritableDatabase();
                     ContentValues values = new ContentValues();
-                    if (strs[3].equals("null")) {
+                    if (strs[3].equals("null") || strs[3].equals("--.-")) {
                         values.put("haveOut", 1);
-                        db.update("out", values, null,null);
+                        Log.d("koma", "+1");
+                        db.update("out", values, null, null);
                     } else if (!strs[3].equals("null")) {
                         values.put("haveOut", 0);
-                        db.update("out", values, null,null);
+                        Log.d("koma", "+0");
+                        db.update("out", values, null, null);
                     }
-
-//					Constant.mlistIndoor.add(ib);
+                    db.close();
                 }
                 handler.sendMessage(msg);
             }
         } catch (IOException e) {
-            System.out.println("异常    IOException");
+            System.out.println("异常    IOException" + e.toString());
 
         } catch (JSONException e) {
             System.out.println("异常    JSONException");
@@ -280,6 +277,8 @@ public class UpdateWifiInfo implements Runnable {
         } catch (InterruptedException e) {
             System.out.println("异常    InterruptedException");
 
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             try {
 
@@ -303,6 +302,7 @@ public class UpdateWifiInfo implements Runnable {
 
                 if (yahoo_date && (is == null || os == null || s == null)) {
                     handler.sendEmptyMessage(-1);
+//                    mContext.sendBroadcast(new Intent("com.chenhang.b"));
                 }
 
             } catch (IOException e) {
@@ -326,4 +326,110 @@ public class UpdateWifiInfo implements Runnable {
         handler.sendEmptyMessageAtTime(-2, startTime + 5000);
 
     }
+
+    public void parse() {
+        content = MyApplication.xieyi + "HTML##" + MyApplication.json + "##";
+
+        Log.d("koma===content", content);
+        Socket s1 = null;
+        try {
+            s1 = new Socket(MyApplication.server, MyApplication.port);
+
+
+            // s = new Socket("192.168.0.110", 8818);
+            System.out.println("打开socket=======");
+
+            if (!s1.isConnected()) {
+                System.out.println("没打开");
+            }
+            os = s1.getOutputStream();
+            is = s1.getInputStream();
+            Log.e("111", "11111	--" + content);
+
+            TestRSA.main(mContext, content);
+            Log.d("koma===RSA", MyApplication.data);
+            os.write(MyApplication.data.getBytes());
+
+            os.flush();
+            s1.shutdownOutput();
+
+            System.out.println("获得了is等待解析	" + (br == null)
+                    + "		isInputShutdown:	" + (s1.isInputShutdown())
+                    + "	isConnected:	" + s1.isConnected()
+                    + "		isOutputShutdown:	" + s1.isOutputShutdown());
+
+
+            byte[] buffer = new byte[8];
+            int readBytes = 0;
+            StringBuilder sb = new StringBuilder();
+
+            Log.d("koma===available", System.currentTimeMillis() - startTime + "");
+            // Thread.sleep(2000); //等两秒 如果没有
+            while (is.available() == 0) {
+                if ((System.currentTimeMillis() - startTime) > 30 * 1000) {
+                    Log.d("koma===", "进来了");
+                    handler.sendEmptyMessage(-3);
+                    return;
+                }
+            }
+
+
+            System.out.println("有没有数据-----------" + is.available());
+            while ((readBytes = is.read(buffer)) > 0) {
+                sb.append(new String(buffer, 0, readBytes));
+            }
+
+            System.out.println("从服务器获得的数据是++++++++++++++++++" + sb.toString());
+
+            // 获得了数据 对数据进行处理
+            String backInfo = sb.toString();
+            Message msg = new Message();
+            if (backInfo.isEmpty()) {
+                handler.sendEmptyMessage(-1);
+//                mContext.sendBroadcast(new Intent("com.chenhang.b"));
+            } else {
+                msg.what = 1;
+                Log.e("返回的信息是", backInfo);
+                String[] strs = backInfo.split("\\*");
+                if (strs.length >= 3) {
+                    if (strs[2].length() == 8) {
+                        strs[2] = strs[2].substring(0, 4);
+                    } else {
+                        strs[2] = strs[2].substring(0, 2);
+                    }
+
+                    InfoBean ib = new InfoBean();
+                    ib.setTime(getNowTime());
+                    // 将数据解析之后存入对象中去
+                    ib.setTime(getNowTime());
+
+
+//                  这里主要是判断设备上有没有室外温度的模块，如果有，在数据库中更新它的值为0，
+//                  haveOut默认值我给的是1，结合主界面的点击事件；--by chenhang
+                    Log.d("koma", strs[3] + "");
+                    SQLiteDatabase db = mSqliteOpenHelper.getWritableDatabase();
+                    ContentValues values = new ContentValues();
+                    if (strs[3].equals("null") || strs[3].equals("--.-")) {
+                        values.put("haveOut", 1);
+                        Log.d("koma", "+1");
+                        db.update("out", values, null, null);
+                    } else if (!strs[3].equals("null")) {
+                        values.put("haveOut", 0);
+                        Log.d("koma", "+0");
+                        db.update("out", values, null, null);
+                    }
+                    db.close();
+
+//					Constant.mlistIndoor.add(ib);
+                }
+                handler.sendMessage(msg);
+//                mContext.sendBroadcast(new Intent("com.chenhang.a"));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

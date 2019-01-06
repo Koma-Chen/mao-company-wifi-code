@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<update>
+	<!--根据version判断是否需要更新 url为下载地址 -->
+    <version>23</version>	<!--  -->
+    <name>WiFi-Weather</name>    <!--  显示的版本号 -->
+    <string>V2.4.0</string>		<!-- 国内城市选择错位问题  定位显示问题 -->
+    <url>https://app.moscase8.com/apps/8001D/Wi-FiWeather.apk</url>
+</update>

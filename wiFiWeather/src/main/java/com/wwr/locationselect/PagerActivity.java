@@ -1,11 +1,5 @@
 package com.wwr.locationselect;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.wwr.clock.A;
-import com.wwr.clock.B;
-import com.wwr.clock.R;
 import android.app.Activity;
 import android.app.LocalActivityManager;
 import android.content.Context;
@@ -22,11 +16,21 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.TabHost;
 import android.widget.TextView;
+
+import com.wwr.clock.A;
+import com.wwr.clock.B;
+import com.wwr.clock.R;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.mpw.constant.MyApplication.isEnterPosition;
 
 public class PagerActivity extends Activity {
 
@@ -44,6 +48,7 @@ public class PagerActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.xml);
 		context = PagerActivity.this;
 		manager = new LocalActivityManager(this, true);
@@ -80,10 +85,10 @@ public class PagerActivity extends Activity {
 	private void initPagerViewer() {
 		pager = (ViewPager) findViewById(R.id.viewpage);
 		final ArrayList<View> list = new ArrayList<View>();
-		Intent intent = new Intent(context, A.class);
-		list.add(getView("A", intent));
-		Intent intent2 = new Intent(context, B.class);
-		list.add(getView("B", intent2));
+		Intent intent = new Intent(context, B.class);
+		list.add(getView("B", intent));
+		Intent intent2 = new Intent(context, A.class);
+		list.add(getView("A", intent2));
 		pager.setAdapter(new MyPagerAdapter(list));
 		pager.setCurrentItem(0);
 		pager.setOnPageChangeListener(new MyOnPageChangeListener());
@@ -94,10 +99,10 @@ public class PagerActivity extends Activity {
 	 */
 	private void InitImageView() {
 		cursor = (ImageView) findViewById(R.id.cursor);
-		bmpW = BitmapFactory.decodeResource(getResources(), R.drawable.roller).getWidth();// 锟斤拷取图片锟斤拷锟�
+		bmpW = BitmapFactory.decodeResource(getResources(), R.drawable.roller).getWidth();// 锟斤拷取图片锟斤拷锟?
 		DisplayMetrics dm = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(dm);
-		int screenW = dm.widthPixels;// 锟斤拷取锟街憋拷锟绞匡拷锟�
+		int screenW = dm.widthPixels;// 锟斤拷取锟街憋拷锟绞匡拷锟?
 		offset = (screenW / 3 - bmpW) / 2;// 锟斤拷锟斤拷偏锟斤拷锟斤拷
 		Matrix matrix = new Matrix();
 		matrix.postTranslate(offset, 0);
@@ -234,4 +239,10 @@ public class PagerActivity extends Activity {
 			pager.setCurrentItem(index);
 		}
 	};
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		isEnterPosition = false;
+	}
 }

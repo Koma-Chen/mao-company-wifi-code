@@ -1031,4 +1031,5 @@
 {"name":"Jersey_City","pinyin":"nanzidao","zip":"101310230"},
 {"name":"Sapporo-shi","pinyin":"nanzidao","zip":"101310230"},
 {"name":"Changhua_City","pinyin":"nanzidao","zip":"101310230"},
-{"name":"Palm_Springs","pinyin":"nanzidao","zip":"101310230"}]
+{"name":"Palm_Springs","pinyin":"nanzidao","zip":"101310230"}
+{name:"Koefering",pinyin:"Koefering",zip:"101310230"}]

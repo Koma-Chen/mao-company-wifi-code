@@ -10,6 +10,7 @@ package cn.sharesdk.demo.wxapi;
 
 import android.content.Intent;
 import android.widget.Toast;
+
 import cn.sharesdk.wechat.utils.WXAppExtendObject;
 import cn.sharesdk.wechat.utils.WXMediaMessage;
 import cn.sharesdk.wechat.utils.WechatHandlerActivity;
@@ -25,6 +26,7 @@ public class WXEntryActivity extends WechatHandlerActivity {
 	 * 做点其他的事情，包括根本不打开任何页面
 	 */
 	public void onGetMessageFromWXReq(WXMediaMessage msg) {
+
 		if (msg != null) {
 			Intent iLaunchMyself = getPackageManager().getLaunchIntentForPackage(getPackageName());
 			startActivity(iLaunchMyself);
@@ -42,6 +44,7 @@ public class WXEntryActivity extends WechatHandlerActivity {
 	 * 本Demo只是将信息展示出来，但你可做点其他的事情，而不仅仅只是Toast
 	 */
 	public void onShowMessageFromWXReq(WXMediaMessage msg) {
+
 		if (msg != null && msg.mediaObject != null
 				&& (msg.mediaObject instanceof WXAppExtendObject)) {
 			WXAppExtendObject obj = (WXAppExtendObject) msg.mediaObject;

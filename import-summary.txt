@@ -7,65 +7,10 @@ The following files were *not* copied into the new Gradle project; you
 should evaluate whether these are still needed in your project and if
 so manually move them:
 
-From PushSDK:
-* ._.classpath
-* ._.project
-* ._.settings
-* ._AndroidManifest.xml
-* ._assets
-* ._bin
-* ._build.gradle
-* ._gen
-* ._libs
-* ._project.properties
-* ._res
-* ._src
-* build.gradle
-From SmartHome:
-* ._.classpath
-* ._.project
-* ._.settings
-* ._AndroidManifest.xml
-* ._assets
-* ._bin
-* ._gen
-* ._ic_launcher-web.png
-* ._libs
-* ._proguard-project.txt
-* ._project.properties
-* ._readme
-* ._res
-* ._src
-* ic_launcher-web.png
+* .gitignore
+* ESPRESSIF MIT LICENSE V1.LICENSE
+* README.md
 * proguard-project.txt
-* readme
-From Wi-FiWeather:
-* ._.classpath
-* ._.project
-* ._.settings
-* ._AndroidManifest.xml
-* ._assets
-* ._bin
-* ._gen
-* ._ic_launcher-web.png
-* ._libs
-* ._lint.xml
-* ._proguard
-* ._proguard-project.txt
-* ._project.properties
-* ._res
-* ._src
-* ic_launcher-web.png
-* proguard-project.txt
-* proguard\
-* proguard\._dump.txt
-* proguard\._mapping.txt
-* proguard\._seeds.txt
-* proguard\._usage.txt
-* proguard\dump.txt
-* proguard\mapping.txt
-* proguard\seeds.txt
-* proguard\usage.txt
 
 Replaced Jars with Dependencies:
 --------------------------------
@@ -77,128 +22,30 @@ the .jar file in your project was of an older version than the
 dependency we picked, which could render the project not compileable.
 You can disable the jar replacement in the import wizard and try again:
 
-android-support-v4.jar => com.android.support:support-v4:19.1.0
+android-support-v4.jar => com.android.support:support-v4:26.+
 
 Moved Files:
 ------------
 Android Gradle projects use a different directory structure than ADT
 Eclipse projects. Here's how the projects were restructured:
 
-In PushSDK:
-* AndroidManifest.xml => pushSDK\src\main\AndroidManifest.xml
-* assets\ => pushSDK\src\main\assets
-* libs\._com.umeng.message_v3.0.3.jar => pushSDK\libs\._com.umeng.message_v3.0.3.jar
-* libs\._utdid4all-1.1.5_proguard.jar => pushSDK\libs\._utdid4all-1.1.5_proguard.jar
-* libs\armeabi\libcocklogic-1.1.3.so => pushSDK\src\main\jniLibs\armeabi\libcocklogic-1.1.3.so
-* libs\armeabi\libtnet-3.1.7.so => pushSDK\src\main\jniLibs\armeabi\libtnet-3.1.7.so
-* libs\com.umeng.message_v3.0.3.jar => pushSDK\libs\com.umeng.message_v3.0.3.jar
-* libs\utdid4all-1.1.5_proguard.jar => pushSDK\libs\utdid4all-1.1.5_proguard.jar
-* libs\x86\libcocklogic-1.1.3.so => pushSDK\src\main\jniLibs\x86\libcocklogic-1.1.3.so
-* libs\x86\libtnet-3.1.7.so => pushSDK\src\main\jniLibs\x86\libtnet-3.1.7.so
-* res\ => pushSDK\src\main\res\
-* src\ => pushSDK\src\main\java
-In SmartHome:
-* AndroidManifest.xml => smartHome\src\main\AndroidManifest.xml
-* assets\ => smartHome\src\main\assets
-* libs\._zxing.jar => smartHome\libs\._zxing.jar
-* libs\zxing.jar => smartHome\libs\zxing.jar
-* res\ => smartHome\src\main\res\
-* src\ => smartHome\src\main\java\
-* src\._com => smartHome\src\main\resources\._com
-* src\com\._demo => smartHome\src\main\resources\com\._demo
-* src\com\._espressif => smartHome\src\main\resources\com\._espressif
-* src\com\demo\._smarthome => smartHome\src\main\resources\com\demo\._smarthome
-* src\com\demo\smarthome\._activity => smartHome\src\main\resources\com\demo\smarthome\._activity
-* src\com\demo\smarthome\._dao => smartHome\src\main\resources\com\demo\smarthome\._dao
-* src\com\demo\smarthome\._db => smartHome\src\main\resources\com\demo\smarthome\._db
-* src\com\demo\smarthome\._device => smartHome\src\main\resources\com\demo\smarthome\._device
-* src\com\demo\smarthome\._iprotocol => smartHome\src\main\resources\com\demo\smarthome\._iprotocol
-* src\com\demo\smarthome\._protocol => smartHome\src\main\resources\com\demo\smarthome\._protocol
-* src\com\demo\smarthome\._service => smartHome\src\main\resources\com\demo\smarthome\._service
-* src\com\demo\smarthome\._tools => smartHome\src\main\resources\com\demo\smarthome\._tools
-* src\com\demo\smarthome\._view => smartHome\src\main\resources\com\demo\smarthome\._view
-* src\com\demo\smarthome\._zxing => smartHome\src\main\resources\com\demo\smarthome\._zxing
-* src\com\demo\smarthome\zxing\._camera => smartHome\src\main\resources\com\demo\smarthome\zxing\._camera
-* src\com\demo\smarthome\zxing\._decoding => smartHome\src\main\resources\com\demo\smarthome\zxing\._decoding
-* src\com\demo\smarthome\zxing\._demo => smartHome\src\main\resources\com\demo\smarthome\zxing\._demo
-* src\com\demo\smarthome\zxing\._view => smartHome\src\main\resources\com\demo\smarthome\zxing\._view
-* src\com\espressif\._iot => smartHome\src\main\resources\com\espressif\._iot
-* src\com\espressif\iot\._esptouch => smartHome\src\main\resources\com\espressif\iot\._esptouch
-* src\com\espressif\iot\esptouch\._demo_activity => smartHome\src\main\resources\com\espressif\iot\esptouch\._demo_activity
-* src\com\espressif\iot\esptouch\._protocol => smartHome\src\main\resources\com\espressif\iot\esptouch\._protocol
-* src\com\espressif\iot\esptouch\._task => smartHome\src\main\resources\com\espressif\iot\esptouch\._task
-* src\com\espressif\iot\esptouch\._udp => smartHome\src\main\resources\com\espressif\iot\esptouch\._udp
-* src\com\espressif\iot\esptouch\._util => smartHome\src\main\resources\com\espressif\iot\esptouch\._util
-In Wi-FiWeather:
-* AndroidManifest.xml => wiFiWeather\src\main\AndroidManifest.xml
-* assets\ => wiFiWeather\src\main\assets\
-* libs\._android-support-v4.jar => wiFiWeather\libs\._android-support-v4.jar
-* libs\._BaiduLBS_Android.jar => wiFiWeather\libs\._BaiduLBS_Android.jar
-* libs\._eventbus.jar => wiFiWeather\libs\._eventbus.jar
-* libs\._hiflying-iots-android-smartlink7.0.2.jar => wiFiWeather\libs\._hiflying-iots-android-smartlink7.0.2.jar
-* libs\._MobCommons-2016.0707.1708.jar => wiFiWeather\libs\._MobCommons-2016.0707.1708.jar
-* libs\._MobTools-2016.0707.1708.jar => wiFiWeather\libs\._MobTools-2016.0707.1708.jar
-* libs\._Msc.jar => wiFiWeather\libs\._Msc.jar
-* libs\._pinyin4android1.0.jar => wiFiWeather\libs\._pinyin4android1.0.jar
-* libs\._pinyin4j-2.5.0.jar => wiFiWeather\libs\._pinyin4j-2.5.0.jar
-* libs\._ShareSDK-Core-2.7.4.jar => wiFiWeather\libs\._ShareSDK-Core-2.7.4.jar
-* libs\._ShareSDK-Email-2.7.4.jar => wiFiWeather\libs\._ShareSDK-Email-2.7.4.jar
-* libs\._ShareSDK-QQ-2.7.4.jar => wiFiWeather\libs\._ShareSDK-QQ-2.7.4.jar
-* libs\._ShareSDK-ShortMessage-2.7.4.jar => wiFiWeather\libs\._ShareSDK-ShortMessage-2.7.4.jar
-* libs\._ShareSDK-Wechat-2.7.4.jar => wiFiWeather\libs\._ShareSDK-Wechat-2.7.4.jar
-* libs\._ShareSDK-Wechat-Core-2.7.4.jar => wiFiWeather\libs\._ShareSDK-Wechat-Core-2.7.4.jar
-* libs\._ShareSDK-Wechat-Moments-2.7.4.jar => wiFiWeather\libs\._ShareSDK-Wechat-Moments-2.7.4.jar
-* libs\arm64-v8a\liblocSDK7a.so => wiFiWeather\src\main\jniLibs\arm64-v8a\liblocSDK7a.so
-* libs\armeabi-v7a\liblocSDK7.so => wiFiWeather\src\main\jniLibs\armeabi-v7a\liblocSDK7.so
-* libs\armeabi-v7a\liblocSDK7a.so => wiFiWeather\src\main\jniLibs\armeabi-v7a\liblocSDK7a.so
-* libs\armeabi\liblocSDK3.so => wiFiWeather\src\main\jniLibs\armeabi\liblocSDK3.so
-* libs\armeabi\liblocSDK7.so => wiFiWeather\src\main\jniLibs\armeabi\liblocSDK7.so
-* libs\armeabi\liblocSDK7a.so => wiFiWeather\src\main\jniLibs\armeabi\liblocSDK7a.so
-* libs\armeabi\libmsc.so => wiFiWeather\src\main\jniLibs\armeabi\libmsc.so
-* libs\BaiduLBS_Android.jar => wiFiWeather\libs\BaiduLBS_Android.jar
-* libs\eventbus.jar => wiFiWeather\libs\eventbus.jar
-* libs\hiflying-iots-android-smartlink7.0.2.jar => wiFiWeather\libs\hiflying-iots-android-smartlink7.0.2.jar
-* libs\MobCommons-2016.0707.1708.jar => wiFiWeather\libs\MobCommons-2016.0707.1708.jar
-* libs\MobTools-2016.0707.1708.jar => wiFiWeather\libs\MobTools-2016.0707.1708.jar
-* libs\Msc.jar => wiFiWeather\libs\Msc.jar
-* libs\pinyin4android1.0.jar => wiFiWeather\libs\pinyin4android1.0.jar
-* libs\pinyin4j-2.5.0.jar => wiFiWeather\libs\pinyin4j-2.5.0.jar
-* libs\ShareSDK-Core-2.7.4.jar => wiFiWeather\libs\ShareSDK-Core-2.7.4.jar
-* libs\ShareSDK-Email-2.7.4.jar => wiFiWeather\libs\ShareSDK-Email-2.7.4.jar
-* libs\ShareSDK-QQ-2.7.4.jar => wiFiWeather\libs\ShareSDK-QQ-2.7.4.jar
-* libs\ShareSDK-ShortMessage-2.7.4.jar => wiFiWeather\libs\ShareSDK-ShortMessage-2.7.4.jar
-* libs\ShareSDK-Wechat-2.7.4.jar => wiFiWeather\libs\ShareSDK-Wechat-2.7.4.jar
-* libs\ShareSDK-Wechat-Core-2.7.4.jar => wiFiWeather\libs\ShareSDK-Wechat-Core-2.7.4.jar
-* libs\ShareSDK-Wechat-Moments-2.7.4.jar => wiFiWeather\libs\ShareSDK-Wechat-Moments-2.7.4.jar
-* libs\x86\liblocSDK7a.so => wiFiWeather\src\main\jniLibs\x86\liblocSDK7a.so
-* libs\x86_64\liblocSDK7a.so => wiFiWeather\src\main\jniLibs\x86_64\liblocSDK7a.so
-* lint.xml => wiFiWeather\lint.xml
-* res\ => wiFiWeather\src\main\res\
-* src\ => wiFiWeather\src\main\java\
-* src\._cn => wiFiWeather\src\main\resources\._cn
-* src\._com => wiFiWeather\src\main\resources\._com
-* src\cn\._sharesdk => wiFiWeather\src\main\resources\cn\._sharesdk
-* src\cn\sharesdk\._demo => wiFiWeather\src\main\resources\cn\sharesdk\._demo
-* src\cn\sharesdk\._onekeyshare => wiFiWeather\src\main\resources\cn\sharesdk\._onekeyshare
-* src\cn\sharesdk\demo\._wxapi => wiFiWeather\src\main\resources\cn\sharesdk\demo\._wxapi
-* src\cn\sharesdk\onekeyshare\._themes => wiFiWeather\src\main\resources\cn\sharesdk\onekeyshare\._themes
-* src\cn\sharesdk\onekeyshare\themes\._classic => wiFiWeather\src\main\resources\cn\sharesdk\onekeyshare\themes\._classic
-* src\cn\sharesdk\onekeyshare\themes\classic\._land => wiFiWeather\src\main\resources\cn\sharesdk\onekeyshare\themes\classic\._land
-* src\cn\sharesdk\onekeyshare\themes\classic\._port => wiFiWeather\src\main\resources\cn\sharesdk\onekeyshare\themes\classic\._port
-* src\com\._moscase => wiFiWeather\src\main\resources\com\._moscase
-* src\com\._mpw => wiFiWeather\src\main\resources\com\._mpw
-* src\com\._mrwujay => wiFiWeather\src\main\resources\com\._mrwujay
-* src\com\._wifi => wiFiWeather\src\main\resources\com\._wifi
-* src\com\._wwr => wiFiWeather\src\main\resources\com\._wwr
-* src\com\moscase\._socket => wiFiWeather\src\main\resources\com\moscase\._socket
-* src\com\moscase\._voice => wiFiWeather\src\main\resources\com\moscase\._voice
-* src\com\mpw\._constant => wiFiWeather\src\main\resources\com\mpw\._constant
-* src\com\mrwujay\._cascade => wiFiWeather\src\main\resources\com\mrwujay\._cascade
-* src\com\mrwujay\cascade\._model => wiFiWeather\src\main\resources\com\mrwujay\cascade\._model
-* src\com\mrwujay\cascade\._service => wiFiWeather\src\main\resources\com\mrwujay\cascade\._service
-* src\com\wifi\._utils => wiFiWeather\src\main\resources\com\wifi\._utils
-* src\com\wwr\._clock => wiFiWeather\src\main\resources\com\wwr\._clock
-* src\com\wwr\._locationselect => wiFiWeather\src\main\resources\com\wwr\._locationselect
+* AndroidManifest.xml => espTouch_Demo\src\main\AndroidManifest.xml
+* res\ => espTouch_Demo\src\main\res\
+* src\ => espTouch_Demo\src\main\java\
+
+Missing Android Support Repository:
+-----------------------------------
+Some useful libraries, such as the Android Support Library, are
+installed from a special Maven repository, which should be installed
+via the SDK manager.
+
+It looks like this library is missing from your SDK installation at:
+null
+
+To install it, open the SDK manager, and in the Extras category,
+select "Android Support Repository". You may also want to install the
+"Google Repository" if you want to use libraries like Google Play
+Services.
 
 Next Steps:
 -----------

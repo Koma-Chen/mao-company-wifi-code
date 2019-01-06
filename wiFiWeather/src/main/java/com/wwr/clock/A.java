@@ -1,52 +1,50 @@
 package com.wwr.clock;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.regex.Pattern;
-import com.mpw.constant.MyApplication;
-import com.mrwujay.cascade.service.FirstEvent;
-import com.mrwujay.cascade.service.SecordEvent;
-import com.mrwujay.cascade.service.ThreeEvent;
-import com.umeng.message.PushAgent;
-import com.wifi.utils.BaiduLocation;
-import com.wifi.utils.City;
-import com.wifi.utils.LocationResultBean;
-import com.wwr.locationselect.MyLetterListView;
-import com.wwr.locationselect.MyLetterListView.OnTouchingLetterChangedListener;
-import de.greenrobot.event.EventBus;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
+
+import com.mpw.constant.MyApplication;
+import com.mrwujay.cascade.service.FirstEvent;
+import com.mrwujay.cascade.service.SecordEvent;
+import com.mrwujay.cascade.service.ThreeEvent;
+import com.umeng.message.PushAgent;
+import com.wifi.utils.City;
+import com.wifi.utils.LocationResultBean;
+import com.wwr.locationselect.MyLetterListView;
+import com.wwr.locationselect.MyLetterListView.OnTouchingLetterChangedListener;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Pattern;
+
+import de.greenrobot.event.EventBus;
 
 public class A extends Activity {
 	private ListAdapter adapter;
@@ -77,6 +75,7 @@ public class A extends Activity {
 	private TextView tv_city1, tv_city2, tv_city3;  //显示定位的三个view
 	private String cn = "";	//定位城市返回的数据国家
 	private Context appContext;
+	private List<City> citys1;
 	
 	
 	@Override
@@ -84,17 +83,20 @@ public class A extends Activity {
 		super.onCreate(savedInstanceState);
 		 initOverlay();
 		setContentView(R.layout.activity_selectcity);
-		
+        citys1 = new ArrayList<>();
 		appContext  = getApplicationContext();
-		
-		
+
 		PushAgent.getInstance(this).onAppStart();
 		personList = (ListView) findViewById(R.id.list_view);
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("com.chenhang.location");
+        registerReceiver(mBroadcastReceiver, filter);
 		
 		/**
 		 * 添加定位的显示
 		 */
-		View headerView = LayoutInflater.from(this).inflate(R.layout.city_list_header_view, null);
+		View headerView = LayoutInflater.from(this).inflate(R.layout.city_list_header_view_cn, null);
 
 		tv_city1 = (TextView) headerView.findViewById(R.id.tv_city1);
 		tv_city2 = (TextView) headerView.findViewById(R.id.tv_city2);
@@ -150,42 +152,15 @@ public class A extends Activity {
 			}
 		});
 
-//		handler2.sendEmptyMessage(SHOWDIALOG);
-//		Thread thread = new Thread() {
-//			@Override
-//			public void run() {
-//				hotCityInit();
-//				handler2.sendEmptyMessage(DISMISSDIALOG);
-//				
-//				
-//				// 本地数据加载完成之后 开始定位   定位完全实现封装   在handler2里面处理结果即可
-//				
-//				// LocationResultBean lrb = new Location().getCity();
-//
-////				Message msg = new Message();
-////				msg.obj = new Location().getCity();
-////				msg.what = LOCATION;
-////				handler2.sendMessage(msg);
-//				
-////				tv_city2.setVisibility(View.VISIBLE);
-//
-//				super.run();
-//			}
-//		};
-//		thread.start();
 		hotCityInit();
 		handler2.sendEmptyMessage(DISMISSDIALOG);
-		new BaiduLocation(appContext, handler2);
-//		LocationResultBean lrb = new LocationResultBean();
-//		lrb.setResltCode(1);
-//		lrb.setCoutry("no");
-//		List<City> list = new ArrayList<City>();
-//		list.add((MyApplication.FORE_LIST.get(1)));
-//		lrb.setLocationCitys(list);
-//		Message msg = new Message();
-//		msg.obj = lrb;
-//		msg.what = LOCATION;
-//		handler2.sendMessage(msg);
+//		new Handler().postDelayed(new Runnable() {
+//			@Override
+//			public void run() {
+//				new BaiduLocation(appContext, handler2);
+//			}
+//		},5000);
+
 	}
 
 	public void hotCityInit() {
@@ -258,8 +233,8 @@ public class A extends Activity {
 			}
 			holder.name.setText(ShowCity_lists.get(position).getName());
 			String currentStr = getAlpha(ShowCity_lists.get(position).getPinyi());// 閿熸枻鎷烽敓鏂ゆ嫹鎷奸敓鏂ゆ嫹
-			String previewStr = (position - 1) >= 0 ? getAlpha(ShowCity_lists.get(position - 1).getPinyi()) : " ";// 閿熸枻鎷蜂竴閿熸枻鎷锋嫾閿熸枻鎷�
-			if (!previewStr.equals(currentStr)) {// 閿熸枻鎷蜂竴閿熸枻鎷烽敓鏂ゆ嫹閿熸枻鎷风ず
+				String previewStr = (position - 1) >= 0 ? getAlpha(ShowCity_lists.get(position - 1).getPinyi()) : " ";// 閿熸枻鎷蜂竴閿熸枻鎷锋嫾閿熸枻鎷�
+				if (!previewStr.equals(currentStr)) {// 閿熸枻鎷蜂竴閿熸枻鎷烽敓鏂ゆ嫹閿熸枻鎷风ず
 				holder.alpha.setVisibility(View.VISIBLE);
 				if (currentStr.equals("#")) {
 					currentStr = "姝ｅ湪鍔犺浇 ";
@@ -286,6 +261,7 @@ public class A extends Activity {
 		WindowManager windowManager = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);
 		windowManager.addView(overlay, lp);
 	}
+
 
 	private class LetterListViewListener implements OnTouchingLetterChangedListener {
 		@Override
@@ -330,138 +306,145 @@ public class A extends Activity {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		unregisterReceiver(mBroadcastReceiver);
+
 //		mLocationClient.stopLocation();	//停止定位
 //		mLocationClient.onDestroy();	//销毁
 	}
 
 	Handler handler2 = new Handler() {
 		public void handleMessage(android.os.Message msg) {
-			switch (msg.what) {
-			case SHOWDIALOG:
+			this.obtainMessage();
+            switch (msg.what) {
+                case SHOWDIALOG:
 //				progress = AppUtil.showProgress(A.this, "Loading medium");
-				break;
-			case DISMISSDIALOG:
+                    break;
+                case DISMISSDIALOG:
 //				if (progress != null) {
-//					
+//
 //					progress.dismiss();
-//					
+//
 //				}
-				personList.setAdapter(null);
-				adapter = new ListAdapter(A.this);
+                    adapter = new ListAdapter(A.this);
 
-				personList.setAdapter(adapter);
+                    personList.setAdapter(adapter);
 
-				sh.addTextChangedListener(new TextWatcher() {
-					@Override
-					public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    sh.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void onTextChanged(CharSequence s, int start, int before, int count) {
 
-					}
+                        }
 
-					@Override
-					public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-					}
+                        @Override
+                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                        }
 
-					@Override
-					public void afterTextChanged(Editable s) {
-						if (s.length() > 0) {
-							String str = s.toString();
-							StringBuffer sb = new StringBuffer();
-							for (int j = 0; j < str.length(); j++) {
-								char c = str.charAt(j);
-								sb.append(Character.toLowerCase(c));
-							}
-							str = sb.toString();
-							ArrayList<City> changecity = new ArrayList<City>();
-							for (int i = 0; i < city_lists.size(); i++) {
-								if (city_lists.get(i).getPinyi().indexOf(str) != -1) {
-									changecity.add(city_lists.get(i));
-								} else if (city_lists.get(i).name.indexOf(str) != -1) {
-									changecity.add(city_lists.get(i));
-								}
-								ShowCity_lists = changecity;
-							}
-						} else {
-							ShowCity_lists = allCity_lists;
-						}
-						adapter.notifyDataSetChanged();
-					}
-				});
-				break;
-			case LOCATION:
-				LocationResultBean lrb = (LocationResultBean)msg.obj;
-				int resultCode = lrb.getResltCode();
-				if(resultCode==-1){		//定位失败
-					tv_city1.setText(getString(R.string.location_faild));
-					
-				}else if(resultCode==0){////定位成功定位成功，本地无匹配到城市，雅虎有返回	点击能返回
-					if("CN".equals(lrb.getCoutry())){
-						cn="01";
-						
-					}else{
-						cn="00";
-					}
-					List<City> citys = lrb.getLocationCitys();
-					tv_city1.setText(citys.get(0).getName());
-					tv_city1.setTag(citys.get(0));
-					tv_city1.setOnClickListener(new locationClickListenger());
-					
-					tv_city2.setVisibility(View.GONE);
-					tv_city3.setVisibility(View.GONE);
-				}else if(resultCode==-2){//定位成功定位成功，本地无匹配到城市，雅虎无返回	点击弹窗
-					List<City> citys = lrb.getLocationCitys();
-					tv_city1.setText(citys.get(0).getName());
-					tv_city1.setOnClickListener(new NoMatchClickListenger());
-					
-					tv_city2.setVisibility(View.GONE);
-					tv_city3.setVisibility(View.GONE);
-				}else{
-					if("CN".equals(lrb.getCoutry())){
-						cn="01";
-					}else{
-						cn="00";
-					}
-					
-					List<City> citys = lrb.getLocationCitys();
-					if(citys.size()==1){	//定位成功切匹配一个城市	点击能返回
-						tv_city1.setText(citys.get(0).getName());
-						tv_city1.setTag(citys.get(0));
-						tv_city1.setOnClickListener(new locationClickListenger());
-						
-						tv_city2.setVisibility(View.GONE);
-						tv_city3.setVisibility(View.GONE);
-						
-					}else if(citys.size()==2){//定位成功切匹配2个城市	点击能返回
+                        @Override
+                        public void afterTextChanged(Editable s) {
+                            if (s.length() > 0) {
+                                String str = s.toString();
+                                StringBuffer sb = new StringBuffer();
+                                for (int j = 0; j < str.length(); j++) {
+                                    char c = str.charAt(j);
+                                    sb.append(Character.toLowerCase(c));
+                                }
+                                str = sb.toString();
+                                ArrayList<City> changecity = new ArrayList<City>();
+                                for (int i = 0; i < city_lists.size(); i++) {
+                                    if (city_lists.get(i).getPinyi().indexOf(str) != -1) {
+                                        changecity.add(city_lists.get(i));
+                                    } else if (city_lists.get(i).name.indexOf(str) != -1) {
+                                        changecity.add(city_lists.get(i));
+                                    }
+                                    ShowCity_lists = changecity;
+                                }
+                            } else {
+                                ShowCity_lists = allCity_lists;
+                            }
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
+                    break;
+                case LOCATION:
+                    LocationResultBean lrb = (LocationResultBean)msg.obj;
+                    int resultCode = lrb.getResltCode();
+                    Log.d("chenhang",resultCode+"");
+                    if(resultCode==-1){		//定位失败
+                        tv_city1.setText(getString(R.string.location_faild));
 
-						tv_city1.setText(citys.get(0).getName());
-						tv_city1.setTag(citys.get(0));
-						tv_city1.setOnClickListener(new locationClickListenger());
-						tv_city2.setText(citys.get(1).getName());
-						tv_city1.setTag(citys.get(1));
-						tv_city2.setOnClickListener(new locationClickListenger());
-						tv_city3.setVisibility(View.GONE);
-						tv_city2.setVisibility(View.VISIBLE);
-					}else if(citys.size()==3){//定位成功切匹配3个城市	点击能返回
+                    }else if(resultCode==0){////定位成功定位成功，本地无匹配到城市，雅虎有返回	点击能返回
+                        if("CN".equals(lrb.getCoutry())){
+                            cn="01";
 
-						tv_city1.setText(citys.get(0).getName());
-						tv_city1.setTag(citys.get(0));
-						tv_city1.setOnClickListener(new locationClickListenger());
-						
-						tv_city2.setText(citys.get(1).getName());
-						tv_city1.setTag(citys.get(1));
-						tv_city1.setOnClickListener(new locationClickListenger());
-						
-						tv_city3.setText(citys.get(2).getName());
-						tv_city1.setTag(citys.get(2));
-						tv_city1.setOnClickListener(new locationClickListenger());
-						
-						tv_city2.setVisibility(View.VISIBLE);
-						tv_city3.setVisibility(View.VISIBLE);
-					}
-				}
-				break;
-			default:
-				break;
-			}
+                        }else{
+                            cn="00";
+                        }
+                        citys1 = lrb.getLocationCitys();
+                        if (citys1 == null){
+                            tv_city1.setText(getString(R.string.location_faild));
+                            return;
+                        }
+                        tv_city1.setText(citys1.get(0).getName());
+                        tv_city1.setTag(citys1.get(0));
+                        tv_city1.setOnClickListener(new locationClickListenger());
+
+                        tv_city2.setVisibility(View.GONE);
+                        tv_city3.setVisibility(View.GONE);
+                    }else if(resultCode==-2){//定位成功定位成功，本地无匹配到城市，雅虎无返回	点击弹窗
+                        List<City> citys = lrb.getLocationCitys();
+                        tv_city1.setText(citys.get(0).getName());
+                        tv_city1.setOnClickListener(new NoMatchClickListenger());
+
+                        tv_city2.setVisibility(View.GONE);
+                        tv_city3.setVisibility(View.GONE);
+                    }else{
+                        if("CN".equals(lrb.getCoutry())){
+                            cn="01";
+                        }else{
+                            cn="00";
+                        }
+
+                        List<City> citys = lrb.getLocationCitys();
+                        if(citys.size()==1){	//定位成功切匹配一个城市	点击能返回
+                            tv_city1.setText(citys.get(0).getName());
+                            tv_city1.setTag(citys.get(0));
+                            tv_city1.setOnClickListener(new locationClickListenger());
+
+                            tv_city2.setVisibility(View.GONE);
+                            tv_city3.setVisibility(View.GONE);
+
+                        }else if(citys.size()==2){//定位成功切匹配2个城市	点击能返回
+
+                            tv_city1.setText(citys.get(0).getName());
+                            tv_city1.setTag(citys.get(0));
+                            tv_city1.setOnClickListener(new locationClickListenger());
+                            tv_city2.setText(citys.get(1).getName());
+                            tv_city1.setTag(citys.get(1));
+                            tv_city2.setOnClickListener(new locationClickListenger());
+                            tv_city3.setVisibility(View.GONE);
+                            tv_city2.setVisibility(View.VISIBLE);
+                        }else if(citys.size()==3){//定位成功切匹配3个城市	点击能返回
+
+                            tv_city1.setText(citys.get(0).getName());
+                            tv_city1.setTag(citys.get(0));
+                            tv_city1.setOnClickListener(new locationClickListenger());
+
+                            tv_city2.setText(citys.get(1).getName());
+                            tv_city1.setTag(citys.get(1));
+                            tv_city1.setOnClickListener(new locationClickListenger());
+
+                            tv_city3.setText(citys.get(2).getName());
+                            tv_city1.setTag(citys.get(2));
+                            tv_city1.setOnClickListener(new locationClickListenger());
+
+                            tv_city2.setVisibility(View.VISIBLE);
+                            tv_city3.setVisibility(View.VISIBLE);
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
 		};
 	};
 	
@@ -527,7 +510,7 @@ public class A extends Activity {
 		public void onClick(View v) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(A.this); // 先得到构造器
 			builder.setMessage(getString(R.string.no_match_city)); // 设置内容
-			builder.setPositiveButton("OK", new DialogInterface.OnClickListener() { // 设置确定按钮
+			builder.setPositiveButton(getString(R.string.alert_ok), new DialogInterface.OnClickListener() { // 设置确定按钮
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							dialog.dismiss();
@@ -538,5 +521,144 @@ public class A extends Activity {
 		
 	}
 
+
+	private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int what = intent.getIntExtra("what",9);
+			Log.d("koma","收到广播");
+            Log.d("koma","msg.what"+what);
+
+            switch (what) {
+                case SHOWDIALOG:
+//				progress = AppUtil.showProgress(A.this, "Loading medium");
+                    break;
+                case DISMISSDIALOG:
+//				if (progress != null) {
+//
+//					progress.dismiss();
+//
+//				}
+                    adapter = new ListAdapter(A.this);
+
+                    personList.setAdapter(adapter);
+
+                    sh.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                        }
+
+                        @Override
+                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable s) {
+                            if (s.length() > 0) {
+                                String str = s.toString();
+                                StringBuffer sb = new StringBuffer();
+                                for (int j = 0; j < str.length(); j++) {
+                                    char c = str.charAt(j);
+                                    sb.append(Character.toLowerCase(c));
+                                }
+                                str = sb.toString();
+                                ArrayList<City> changecity = new ArrayList<City>();
+                                for (int i = 0; i < city_lists.size(); i++) {
+                                    if (city_lists.get(i).getPinyi().indexOf(str) != -1) {
+                                        changecity.add(city_lists.get(i));
+                                    } else if (city_lists.get(i).name.indexOf(str) != -1) {
+                                        changecity.add(city_lists.get(i));
+                                    }
+                                    ShowCity_lists = changecity;
+                                }
+                            } else {
+                                ShowCity_lists = allCity_lists;
+                            }
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
+                    break;
+                case LOCATION:
+                    LocationResultBean lrb = MyApplication.sLrb;
+                    int resultCode = lrb.getResltCode();
+                    if(resultCode==-1){		//定位失败
+                        tv_city1.setText(getString(R.string.location_faild));
+
+                    }else if(resultCode==0){////定位成功定位成功，本地无匹配到城市，雅虎有返回	点击能返回
+                        if("CN".equals(lrb.getCoutry())){
+                            cn="01";
+
+                        }else{
+                            cn="00";
+                        }
+                        citys1 = lrb.getLocationCitys();
+                        if (citys1 == null){
+                            tv_city1.setText(getString(R.string.location_faild));
+                            return;
+                        }
+                        tv_city1.setText(citys1.get(0).getName());
+                        tv_city1.setTag(citys1.get(0));
+                        tv_city1.setOnClickListener(new locationClickListenger());
+
+                        tv_city2.setVisibility(View.GONE);
+                        tv_city3.setVisibility(View.GONE);
+                    }else if(resultCode==-2){//定位成功定位成功，本地无匹配到城市，雅虎无返回	点击弹窗
+                        List<City> citys = lrb.getLocationCitys();
+                        tv_city1.setText(citys.get(0).getName());
+                        tv_city1.setOnClickListener(new NoMatchClickListenger());
+
+                        tv_city2.setVisibility(View.GONE);
+                        tv_city3.setVisibility(View.GONE);
+                    }else{
+                        if("CN".equals(lrb.getCoutry())){
+                            cn="01";
+                        }else{
+                            cn="00";
+                        }
+
+                        List<City> citys = lrb.getLocationCitys();
+                        if(citys.size()==1){	//定位成功切匹配一个城市	点击能返回
+                            tv_city1.setText(citys.get(0).getName());
+                            tv_city1.setTag(citys.get(0));
+                            tv_city1.setOnClickListener(new locationClickListenger());
+
+                            tv_city2.setVisibility(View.GONE);
+                            tv_city3.setVisibility(View.GONE);
+
+                        }else if(citys.size()==2){//定位成功切匹配2个城市	点击能返回
+
+                            tv_city1.setText(citys.get(0).getName());
+                            tv_city1.setTag(citys.get(0));
+                            tv_city1.setOnClickListener(new locationClickListenger());
+                            tv_city2.setText(citys.get(1).getName());
+                            tv_city1.setTag(citys.get(1));
+                            tv_city2.setOnClickListener(new locationClickListenger());
+                            tv_city3.setVisibility(View.GONE);
+                            tv_city2.setVisibility(View.VISIBLE);
+                        }else if(citys.size()==3){//定位成功切匹配3个城市	点击能返回
+
+                            tv_city1.setText(citys.get(0).getName());
+                            tv_city1.setTag(citys.get(0));
+                            tv_city1.setOnClickListener(new locationClickListenger());
+
+                            tv_city2.setText(citys.get(1).getName());
+                            tv_city1.setTag(citys.get(1));
+                            tv_city1.setOnClickListener(new locationClickListenger());
+
+                            tv_city3.setText(citys.get(2).getName());
+                            tv_city1.setTag(citys.get(2));
+                            tv_city1.setOnClickListener(new locationClickListenger());
+
+                            tv_city2.setVisibility(View.VISIBLE);
+                            tv_city3.setVisibility(View.VISIBLE);
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 	
 }

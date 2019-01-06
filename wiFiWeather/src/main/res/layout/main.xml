@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#DDDDDD"
-    android:orientation="vertical" >
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="#DDDDDD"
+              android:orientation="vertical">
 
     <RelativeLayout
         android:id="@+id/layhead"
         android:layout_width="match_parent"
         android:layout_height="45dp"
-        android:background="@drawable/btn" >
+        android:background="@drawable/btn">
 
         <ImageView
             android:id="@+id/imgage"
@@ -18,20 +18,20 @@
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:layout_marginLeft="10dp"
-            android:src="@drawable/imgback" />
+            android:src="@drawable/imgback"/>
 
         <TextView
             style="@style/ActionBar_title_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="@string/alarm_time" />
+            android:text="@string/alarm_time"/>
     </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/edit_text_x" >
+        android:background="@drawable/edit_text_x">
 
         <TextView
             android:id="@+id/textView1"
@@ -39,27 +39,27 @@
             android:layout_height="wrap_content"
             android:text="@string/alarm_time_add"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="#000000" />
+            android:textColor="#000000"/>
 
         <Button
             android:id="@+id/timeselector"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
-            android:background="@drawable/edit_bg"
             android:singleLine="true"
+            android:background="@android:color/transparent"
             android:text="@string/select_alarm_time"
             android:textColor="#DDDDDD"
-            android:textSize="20sp" />
+            android:textSize="20sp"/>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/edit_text_x"
-        android:orientation="horizontal"
         android:gravity="center"
-        android:weightSum="7" >
+        android:orientation="horizontal"
+        android:weightSum="7">
 
         <TextView
             android:id="@+id/textView2"
@@ -68,7 +68,7 @@
             android:layout_weight="2"
             android:text="@string/alarm_add"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="#000000" />
+            android:textColor="#000000"/>
 
         <TextView
             android:id="@+id/textView3"
@@ -78,7 +78,7 @@
             android:gravity="center"
             android:paddingRight="20dp"
             android:text="@string/mo_to_su"
-            android:textColor="#000000" />
+            android:textColor="#000000"/>
 
         <ToggleButton
             android:id="@+id/AlarmBtn1"
@@ -91,16 +91,16 @@
             android:checked="true"
             android:text="@string/on"
             android:textOff="@string/off"
-            android:textOn="@string/on" />
+            android:textOn="@string/on"/>
     </LinearLayout>
 
     <LinearLayout
-         android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/edit_text_x"
+        android:gravity="center"
         android:orientation="horizontal"
-        android:weightSum="7" >
+        android:weightSum="7">
 
         <TextView
             android:layout_width="0dp"
@@ -108,7 +108,7 @@
             android:layout_weight="2"
             android:text="@string/alarm_add"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="#000000" />
+            android:textColor="#000000"/>
 
         <TextView
             android:layout_width="0dp"
@@ -117,11 +117,11 @@
             android:gravity="center"
             android:paddingRight="20dp"
             android:text="@string/mo_to_fr"
-            android:textColor="#000000" />
+            android:textColor="#000000"/>
 
         <ToggleButton
             android:id="@+id/AlarmBtn2"
-              android:layout_width="0dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_weight="2"
@@ -130,39 +130,38 @@
             android:checked="true"
             android:text="@string/on"
             android:textOff="@string/off"
-            android:textOn="@string/on"  />
+            android:textOn="@string/on"/>
     </LinearLayout>
 
     <LinearLayout
-         android:gravity="center"
-        android:weightSum="7"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/edit_text_x"
-        android:orientation="horizontal" >
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:weightSum="7">
 
         <TextView
-            android:layout_weight="5"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="5"
             android:text="@string/snooze"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="#000000" />
+            android:textColor="#000000"/>
 
-     
-        
+
         <ToggleButton
             android:id="@+id/SnoozeBtn"
-            android:layout_weight="2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:layout_weight="2"
             android:background="@android:color/transparent"
             android:button="@drawable/toggle_btn"
             android:checked="true"
             android:text="@string/on"
             android:textOff="@string/off"
-            android:textOn="@string/on" />
+            android:textOn="@string/on"/>
     </LinearLayout>
 
 </LinearLayout>

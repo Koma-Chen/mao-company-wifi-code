@@ -404,13 +404,13 @@ public class IndoorTempView extends View {
                     try {
                         if (gt == null) {
                             gt = new GetTempNo(handler);
-                            gt.getTemp(strIndoor, ID_FROM_INDOOR);
+                            gt.getTemp(strIndoor, ID_FROM_INDOOR,context);
                             postInvalidate();
                         }
                         Thread.sleep(60 * 1000);
                         int i = 0;
                         Log.e("运行了：", "" + i++);
-                        gt.getTemp(strIndoor, ID_FROM_INDOOR);
+                        gt.getTemp(strIndoor, ID_FROM_INDOOR,context);
                         postInvalidate();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -426,6 +426,7 @@ public class IndoorTempView extends View {
         private AlertDialog.Builder builder;
 
         public void handleMessage(Message msg) {
+            this.obtainMessage();
             if (msg.what == -1) {
                 Log.e("发送来的what是-1", "发送来的what是-1");
                 Toast.makeText(context, "网络异常", Toast.LENGTH_LONG);
@@ -433,7 +434,7 @@ public class IndoorTempView extends View {
                 if (builder == null) {
                     builder = new AlertDialog.Builder(context);
                     builder.setMessage("Network exception, please check the network!"); // 设置内容
-                    builder.setPositiveButton("OK",
+                    builder.setPositiveButton(context.getString(R.string.alert_ok),
                             new DialogInterface.OnClickListener() { // 设置确定按钮
                                 @Override
                                 public void onClick(DialogInterface dialog,

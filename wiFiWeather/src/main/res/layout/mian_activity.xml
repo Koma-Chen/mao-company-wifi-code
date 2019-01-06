@@ -1,13 +1,16 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/mainLayout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/bg_sunny_day" >
+                android:id="@+id/mainLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_sunny_day">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical" >
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -21,7 +24,7 @@
                 android:layout_height="25dp"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:src="@drawable/wifi_graw" />
+                android:src="@drawable/wifi_graw"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -31,7 +34,7 @@
                 android:gravity="center"
                 android:text="@string/app_name"
                 android:textColor="#FFFFFF"
-                android:textSize="20sp" />
+                android:textSize="20dp"/>
 
             <ImageView
                 android:id="@+id/iv_setting"
@@ -40,51 +43,65 @@
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 android:onClick="showPopupWindow"
-                android:src="@drawable/setblack" />
+                android:src="@drawable/setblack"/>
         </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#FFFFFF" />
+            android:background="#FFFFFF"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.02"
                 android:gravity="center"
-                android:orientation="horizontal" >
+                android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/wifi"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:layout_marginTop="3dp"
-                    android:text="@string/wifi_name"
-                    android:textColor="#FFFFFF"
-                    android:textSize="20sp" />
+                    android:orientation="vertical">
 
-                <com.wifi.utils.EditTextWithDel
-                    android:paddingLeft="5dp"
+                    <TextView
+                        android:id="@+id/wifi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:singleLine="true"
+                        android:text="@string/wifi_name"
+                        android:textColor="#FFFFFF"
+                        android:textSize="20dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/only"
+                        android:textColor="#FFFFFF"
+                        android:textSize="10dp"/>
+                </LinearLayout>
+
+                <TextView
                     android:id="@+id/editname"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="25dp"
                     android:layout_marginRight="10dp"
+                    android:textSize="17sp"
                     android:layout_weight="2.5"
                     android:background="@drawable/bg_edittext"
-                    android:ems="10"
-                    android:inputType="textPersonName"
-                    android:singleLine="true" >
-                    <requestFocus />
-                </com.wifi.utils.EditTextWithDel>
+                    android:paddingLeft="5dp"
+                    android:singleLine="true">
+
+                </TextView>
             </LinearLayout>
 
             <LinearLayout
@@ -93,22 +110,20 @@
                 android:layout_marginTop="5dp"
                 android:layout_weight="0.02"
                 android:gravity="center"
-                android:orientation="horizontal" >
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/wifipass"
                     android:layout_width="0dp"
-                    android:layout_weight="2"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="0dp"
+                    android:layout_weight="2"
                     android:text="@string/wifi_password"
                     android:textColor="#FFFFFF"
-                    android:textSize="20sp" >
+                    android:textSize="20dp">
                 </TextView>
 
                 <com.wifi.utils.CanSeeEditText
-                    android:textColorHint="#9D9D9D"
-                    android:paddingLeft="5dp"
                     android:id="@+id/editpass"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -116,149 +131,163 @@
                     android:layout_marginRight="10dp"
                     android:layout_weight="2.5"
                     android:background="@drawable/bg_edittext"
-                    android:ems="10"
                     android:hint="@string/hint_password"
                     android:inputType="textPassword"
-                    android:singleLine="true" >
+                    android:paddingLeft="5dp"
+                    android:singleLine="true"
+                    android:textColorHint="#9D9D9D">
                 </com.wifi.utils.CanSeeEditText>
             </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#FFFFFF" />
+                android:background="#FFFFFF"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_marginTop="10dp"
                 android:layout_weight="0.10"
-                android:gravity="center" >
+                android:gravity="center">
 
                 <Button
                     android:id="@+id/conn_wifi"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="6dp"
                     android:background="@null"
                     android:text="@string/configura_device"
                     android:textColor="#FFFFFF"
                     android:textSize="20dp"
-                    android:layout_marginBottom="6dp"
-                     />
+                    />
 
             </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#FFFFFF" />
+                android:background="#FFFFFF"/>
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_marginTop="5dp"
                 android:layout_weight="0.10"
-                android:background="@drawable/mm1"
-                android:gravity="center" >
+                android:orientation="horizontal"
+                >
 
                 <TextView
                     android:id="@+id/am_pm_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
                     android:layout_marginTop="0dp"
                     android:text="@string/city_name"
                     android:textColor="#FFFFFF"
-                    android:textSize="20sp" >
+                    android:textSize="20dp">
                 </TextView>
 
                 <Button
-                    android:layout_marginLeft="80dp"
                     android:id="@+id/btncity"
-                    android:gravity="center"
-                    android:layout_width="match_parent"
+                    android:layout_width="190dp"
                     android:layout_height="match_parent"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="35dp"
                     android:background="@null"
+                    android:gravity="right|center"
                     android:singleLine="true"
                     android:textColor="#FFFFFF"
-                    android:textSize="22sp" />
-            </LinearLayout>
+                    android:textSize="22dp"/>
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="10dp"
+                    android:layout_weight="2"
+                    android:src="@drawable/mmm1"/>
+            </RelativeLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#FFFFFF" />
+                android:background="#FFFFFF"/>
 
             <LinearLayout
-                android:weightSum="4"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="0.10"
+                android:gravity="center"
                 android:orientation="horizontal"
-                android:gravity="center" >
+                android:weightSum="4">
 
                 <TextView
-                    android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="0dp"
+                    android:layout_weight="1"
                     android:paddingLeft="10dp"
                     android:text="@string/unit"
                     android:textColor="#FFFFFF"
-                    android:textSize="20sp" >
+                    android:textSize="20dp">
                 </TextView>
 
                 <Button
-                    android:layout_weight="1"
                     android:id="@+id/btn_wendo"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:background="@null"
                     android:text="°C"
                     android:textColor="#FFFFFF"
-                    android:textSize="20sp" />
+                    android:textSize="20dp"/>
+
                 <TextView
-                    android:background="@color/white"
                     android:layout_width="1dp"
                     android:layout_height="match_parent"
-                    android:textSize="25sp"
-                     />
-                
-                
-                 <Button
-                     android:gravity="center"
-                    android:layout_weight="2"
+                    android:background="@color/white"
+                    android:textSize="25dp"
+                    />
+
+
+                <Button
                     android:id="@+id/display"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="2"
                     android:background="@null"
+                    android:gravity="center"
                     android:text="@string/display3"
                     android:textColor="#FFFFFF"
-                    android:textSize="20sp" />
+                    android:textSize="20dp"/>
             </LinearLayout>
-            
-            
+
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#FFFFFF" />
+                android:background="#FFFFFF"/>
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="0.10"
-                android:background="@drawable/mm1"
-                android:gravity="center" >
+                android:gravity="center">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="0dp"
+                    android:gravity="center"
                     android:text="@string/auto_update"
                     android:textColor="#FFFFFF"
-                    android:textSize="20sp" >
+                    android:textSize="20dp">
                 </TextView>
 
                 <Button
@@ -266,30 +295,44 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="80dp"
+                    android:layout_marginRight="65dp"
                     android:background="@null"
+                    android:layout_centerVertical="true"
+                    android:gravity="right|center"
                     android:text="3 Hour"
                     android:textColor="#FFFFFF"
-                    android:textSize="20dp" />
-            </LinearLayout>
+                    android:textSize="20dp"/>
+
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="10dp"
+                    android:layout_centerVertical="true"
+                    android:layout_weight="2"
+                    android:src="@drawable/mmm1"/>
+
+            </RelativeLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginTop="5dp"
-                android:background="#ffffff" >
+                android:background="#ffffff">
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#ffffff" >
+                android:background="#ffffff">
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/view"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="0.24" >
+                android:layout_weight="0.24">
 
                 <LinearLayout
                     android:id="@+id/tv_alarm_set"
@@ -297,7 +340,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:orientation="vertical" >
+                    android:orientation="vertical">
 
                     <TextView
                         android:layout_width="match_parent"
@@ -305,42 +348,42 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:textColor="#ffffff"
-                        android:textSize="20sp" />
+                        android:textSize="20dp"/>
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
-                        android:clickable="false"
                         android:layout_weight="1"
+                        android:clickable="false"
                         android:gravity="center"
                         android:text="@string/alarm_setting_alarm"
                         android:textColor="#ffffff"
-                        android:textSize="20sp" />
+                        android:textSize="20dp"/>
 
                     <TextView
-                        android:clickable="false"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="0.6"
+                        android:clickable="false"
                         android:gravity="center"
                         android:text="@string/alarm_setting_setting"
                         android:textColor="#ffffff"
-                        android:textSize="20sp" />
-                    
-                       <TextView
-                        android:clickable="false"
+                        android:textSize="20dp"/>
+
+                    <TextView
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="0.4"
+                        android:clickable="false"
                         android:gravity="center"
                         android:textColor="#ffffff"
-                        android:textSize="20sp" />
+                        android:textSize="20dp"/>
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="1dp"
                     android:layout_height="match_parent"
-                    android:background="#ffffff" >
+                    android:background="#ffffff">
                 </LinearLayout>
 
                 <LinearLayout
@@ -348,7 +391,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:orientation="vertical" >
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/textAmpm"
@@ -357,7 +400,7 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:textColor="#ffffff"
-                        android:textSize="20sp" />
+                        android:textSize="20dp"/>
 
                     <TextView
                         android:id="@+id/textalarm"
@@ -367,7 +410,7 @@
                         android:gravity="center"
                         android:text="@string/alarm"
                         android:textColor="#ffffff"
-                        android:textSize="20sp" />
+                        android:textSize="20dp"/>
 
                     <TextView
                         android:id="@+id/TextView01"
@@ -375,52 +418,52 @@
                         android:layout_height="0dp"
                         android:layout_weight="0.6"
                         android:gravity="center"
-                        android:text="ON"
+                        android:text="@string/off"
                         android:textColor="#ffffff"
-                        android:textSize="20sp" />
-                    
-                    
+                        android:textSize="20dp"/>
+
+
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="0.4"
                         android:gravity="center"
                         android:textColor="#ffffff"
-                        android:textSize="20sp" />
+                        android:textSize="20dp"/>
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="1dp"
                     android:layout_height="match_parent"
-                    android:background="#ffffff" >
+                    android:background="#ffffff">
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:orientation="vertical" >
+                    android:orientation="vertical">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
-                        android:layout_weight="2" >
+                        android:layout_weight="2">
 
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:orientation="vertical" >
+                            android:orientation="vertical">
 
                             <TextView
-                                android:text="12:00"
                                 android:id="@+id/texttime"
                                 android:layout_width="match_parent"
                                 android:layout_height="0dp"
                                 android:layout_weight="1"
                                 android:gravity="center"
+                                android:text="12:00"
                                 android:textColor="#ffffff"
-                                android:textSize="20sp" />
+                                android:textSize="20dp"/>
 
                             <TextView
                                 android:id="@+id/textsnooze"
@@ -430,7 +473,7 @@
                                 android:gravity="center"
                                 android:text="@string/snooze"
                                 android:textColor="#ffffff"
-                                android:textSize="20sp" />
+                                android:textSize="20dp"/>
 
                             <TextView
                                 android:id="@+id/textonoff2"
@@ -438,17 +481,17 @@
                                 android:layout_height="0dp"
                                 android:layout_weight="0.6"
                                 android:gravity="center"
-                                android:text="ON"
+                                android:text="@string/off"
                                 android:textColor="#ffffff"
-                                android:textSize="20sp" />
-                            
-                               <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="0.4"
-                        android:gravity="center"
-                        android:textColor="#ffffff"
-                        android:textSize="20sp" />
+                                android:textSize="20dp"/>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="0dp"
+                                android:layout_weight="0.4"
+                                android:gravity="center"
+                                android:textColor="#ffffff"
+                                android:textSize="20dp"/>
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
@@ -458,13 +501,13 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#FFFFFF" />
+            android:background="#FFFFFF"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.1"
-            android:gravity="center" >
+            android:gravity="center">
 
             <Button
                 android:id="@+id/buttonconn"
@@ -474,7 +517,7 @@
                 android:background="@null"
                 android:text="@string/update_date"
                 android:textColor="#DDDDDD"
-                android:textSize="20dp" />
+                android:textSize="20dp"/>
         </LinearLayout>
     </LinearLayout>
 

@@ -1,6 +1,5 @@
 package com.wifi.utils;
 
-import com.wwr.clock.R;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -13,6 +12,8 @@ import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.EditText;
+
+import com.wwr.clock.R;
 
 public class CanSeeEditText extends EditText{
 
@@ -46,6 +47,7 @@ public class CanSeeEditText extends EditText{
 	}
 
 	private void init() {
+		setSingleLine(true);
 		rightOffset = dip2px(context,5);
 		clearButShow = ((BitmapDrawable)getResources().getDrawable(R.drawable.icon_edittext_delete)).getBitmap();
 		passwordEyeInvisible = ((BitmapDrawable)getResources().getDrawable(R.drawable.password_invisible)).getBitmap();

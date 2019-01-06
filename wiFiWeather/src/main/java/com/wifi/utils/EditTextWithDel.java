@@ -1,7 +1,5 @@
 package com.wifi.utils;
 
-import com.wwr.clock.R;
-
 import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -11,6 +9,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.EditText;
+
+import com.wwr.clock.R;
 
 /**
  * @author sunday
@@ -49,19 +49,12 @@ public class EditTextWithDel extends EditText {
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 			@Override
 			public void afterTextChanged(Editable s) {
-				setDrawable();
+
 			}
 		});
-		setDrawable();
 	}
 	
-	private void setDrawable() {
-		if(length() < 1)
-			setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
-		else
-			setCompoundDrawablesWithIntrinsicBounds(null, null, imgAble, null);
-	}
-	
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (imgAble != null && event.getAction() == MotionEvent.ACTION_UP) {

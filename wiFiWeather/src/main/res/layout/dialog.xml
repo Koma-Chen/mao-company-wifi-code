@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"  
             android:layout_gravity="center"  
             android:paddingTop="10dp"  
-            android:text="Wait"
+            android:text="@string/alert_wait_"
             android:textSize="30dp"
             android:textColor="#DDDDDD"  
              />  

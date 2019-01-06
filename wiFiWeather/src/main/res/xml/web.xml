@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <context-param>
+        <param-name>InitBCProvider</param-name>
+        <param-value>true</param-value>
+    </context-param>
+
+</PreferenceScreen>

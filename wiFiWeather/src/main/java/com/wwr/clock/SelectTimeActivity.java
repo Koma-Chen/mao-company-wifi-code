@@ -1,19 +1,5 @@
 package com.wwr.clock;
 
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.logging.SimpleFormatter;
-
-import com.mrwujay.cascade.service.Event;
-import com.mrwujay.cascade.service.FiveEvent;
-import com.mrwujay.cascade.service.LevelEvent;
-import com.mrwujay.cascade.service.SexEvent;
-import com.mrwujay.cascade.service.ZeorEvent;
-import com.wifi.utils.ToggleStatus;
-
-import de.greenrobot.event.EventBus;
 import android.app.Activity;
 import android.app.TimePickerDialog;
 import android.content.ContentResolver;
@@ -22,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -32,8 +17,20 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
+
+import com.mrwujay.cascade.service.Event;
+import com.mrwujay.cascade.service.FiveEvent;
+import com.mrwujay.cascade.service.LevelEvent;
+import com.mrwujay.cascade.service.SexEvent;
+import com.mrwujay.cascade.service.ZeorEvent;
+import com.wifi.utils.ToggleStatus;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+import de.greenrobot.event.EventBus;
 
 public class SelectTimeActivity extends Activity {
 	Button btntime;
@@ -53,10 +50,13 @@ public class SelectTimeActivity extends Activity {
 	Intent mResultData;
 	private boolean alarm1,alarm2,isSnooze;
 
+	private SharedPreferences mSharedPreferences;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
+		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.main);
 		
 		
@@ -67,6 +67,7 @@ public class SelectTimeActivity extends Activity {
 		 */
 		preferences = getSharedPreferences("togglebuttonstatus",
 				Context.MODE_PRIVATE);
+        mSharedPreferences = getSharedPreferences("clock", MODE_PRIVATE);
 		alarm1 = preferences.getBoolean("alarm1",false);		
 		alarm2 = preferences.getBoolean("alarm2",false);
 		isSnooze = preferences.getBoolean("isSnooze",false);
@@ -120,11 +121,11 @@ public class SelectTimeActivity extends Activity {
 		alarm2 = Alarmbtn2.isChecked();
 		isSnooze = Snoozebtn.isChecked();
 		if(alarm1||alarm2){
-			Alarm = "ON";
+			Alarm = getString(R.string.on);
 		}else{
-			Alarm = "OFF";
+			Alarm = getString(R.string.off);
 		}
-		Snooze = isSnooze?"ON":"OFF";
+		Snooze = isSnooze?getString(R.string.on):getString(R.string.off);
 		editor.putBoolean("alarm1",alarm1);		
 		editor.putBoolean("alarm2",alarm2);
 		editor.putBoolean("isSnooze",isSnooze);
@@ -140,9 +141,17 @@ public class SelectTimeActivity extends Activity {
 
 	// 接收其他Activity的信息
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		//会出现空指针一场 
+
+//	    if (mSharedPreferences.getBoolean("isFirstEnter",true)){
+//
+//	        return;
+//        }
+		//会出现空指针一场
+		if (data == null)
+			return;
+
 		result = data.getExtras().getString("time");
-		
+
 		//
 		ampm = data.getExtras().getString("ampm");
 		clocktime = data.getExtras().getString("alltime");
@@ -170,8 +179,11 @@ public class SelectTimeActivity extends Activity {
 
 		SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
 		String data = formatter.format(new Date());
-		h = Integer.parseInt(data.split(":")[0]);
-		m = Integer.parseInt(data.split(":")[1]);
+//		h = Integer.parseInt(data.split(":")[0]);
+//		m = Integer.parseInt(data.split(":")[1]);
+
+        h = mSharedPreferences.getInt("hour",12);
+        m = mSharedPreferences.getInt("min",00);
 
 		Log.e("获得的时间为   h"+h,"		m	"+m);
 		SharedPreferences spAlarm = getSharedPreferences("alarm",Activity.MODE_PRIVATE);
@@ -182,14 +194,13 @@ public class SelectTimeActivity extends Activity {
 		//如果是12小时制  则判断时间
 		if ("12".equals(strTimeFormat) ) {
 			if (h> 12) {
-				ampm = "PM";
+				ampm = getString(R.string.pm);
 				h=h-12;
 			}else if(h==12){
-				ampm = "PM";
-				
+				ampm = getString(R.string.pm);
 			}
 			else if (h < 12) {
-				ampm = "AM";
+				ampm = getString(R.string.am);
 				if (h == 0) {
 					h = 12;
 				}

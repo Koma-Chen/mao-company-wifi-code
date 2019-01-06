@@ -1,10 +1,5 @@
 package com.wwr.locationselect;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -16,6 +11,11 @@ import android.os.Message;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MyPickerView extends View {
 	public static final String TAG = "PickerView";
@@ -52,6 +52,8 @@ public class MyPickerView extends View {
 
 		@Override
 		public void handleMessage(Message msg) {
+
+			this.obtainMessage();
 			if (Math.abs(mMoveLen) < SPEED) {
 				mMoveLen = 0;
 				if (mTask != null) {

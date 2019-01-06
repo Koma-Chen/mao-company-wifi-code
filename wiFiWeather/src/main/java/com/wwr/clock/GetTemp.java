@@ -1,5 +1,9 @@
 package com.wwr.clock;
 
+import com.mpw.constant.Constant;
+import com.mpw.constant.InfoBean;
+import com.mpw.constant.MyApplication;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,9 +13,6 @@ import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import com.mpw.constant.Constant;
-import com.mpw.constant.InfoBean;
 
 public class GetTemp implements Runnable {
 
@@ -28,7 +29,7 @@ public class GetTemp implements Runnable {
 	@Override
 	public void run() {
 		try {
-			s = new Socket("120.25.207.192", 8818);
+			s = new Socket(MyApplication.server, MyApplication.port);
 			os = s.getOutputStream();
 			is = s.getInputStream();
 			// 向服务器端发送一条消息

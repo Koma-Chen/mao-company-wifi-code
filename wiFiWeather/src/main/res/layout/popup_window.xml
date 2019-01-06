@@ -1,107 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="260dp"
-        android:layout_height="200dp"
+        android:layout_height="wrap_content"
         android:background="@drawable/black"
         android:orientation="vertical"
         android:paddingTop="30dp"
-        android:weightSum="5" >
+        >
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_gravity="center"
+            android:layout_marginTop="10dp"
             android:layout_weight="1"
-            android:orientation="horizontal" >
+            android:orientation="horizontal">
 
             <ImageView
                 android:layout_width="30dp"
                 android:layout_height="match_parent"
-                android:src="@drawable/share" />
+                android:src="@drawable/share"/>
 
             <TextView
                 android:id="@+id/tv_share"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_marginLeft="30dp"
                 android:text="@string/share_barcode"
                 android:textColor="@color/white"
-                android:layout_marginLeft="30dp"
-                android:textSize="18sp" />
+                android:textSize="18dp"/>
         </LinearLayout>
 
         <TextView
             android:layout_width="230dp"
             android:layout_height="1dp"
             android:layout_gravity="center"
-            android:background="#CDCDCD" />
+            android:background="#CDCDCD"/>
 
-        <TextView
-            android:id="@+id/tv_temp_indoor"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_gravity="center"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/temp_and_humidity_indoor"
-            android:textColor="@color/white"
-            android:textSize="18sp" />
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/tv_temp_indoor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="@string/temp_and_humidity_indoor"
+                android:textColor="@color/white"
+                android:textSize="18dp"/>
+
+        </LinearLayout>
+
 
         <TextView
             android:layout_width="230dp"
             android:layout_height="1dp"
             android:layout_gravity="center"
-            android:background="#CDCDCD" />
+            android:background="#CDCDCD"/>
 
-        <TextView
-            android:id="@+id/tv_temp_outdoor"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_gravity="center"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/temp_and_humidity_outdoor"
-            android:textColor="@color/white"
-            android:textSize="18sp" />
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/tv_temp_outdoor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="@string/temp_and_humidity_outdoor"
+                android:textColor="@color/white"
+                android:textSize="18dp"/>
+
+        </LinearLayout>
+
+
 
         <TextView
             android:layout_width="230dp"
             android:layout_height="1dp"
             android:layout_gravity="center"
-            android:background="#CDCDCD" />
+            android:background="#CDCDCD"/>
 
-
-        <TextView
-            android:id="@+id/feedback"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_gravity="center"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/contact_us"
-            android:textColor="@color/white"
-            android:textSize="18sp" />
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/feedback"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="@string/contact_us"
+                android:textColor="@color/white"
+                android:textSize="18dp"/>
+
+        </LinearLayout>
+
 
         <TextView
             android:layout_width="230dp"
             android:layout_height="1dp"
             android:layout_gravity="center"
-            android:background="#CDCDCD" />
+            android:background="#CDCDCD"/>
 
-        <TextView
-            android:id="@+id/Viersion"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_gravity="center"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/version"
-            android:textColor="@color/white"
-            android:textSize="18sp" />
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/Viersion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="@string/version"
+                android:textColor="@color/white"
+                android:textSize="18dp"/>
+
+        </LinearLayout>
+
+
+
+        <TextView
+            android:layout_width="230dp"
+            android:layout_height="1dp"
+            android:layout_gravity="center"
+            android:background="#CDCDCD"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/select"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="@string/language_select"
+                android:textColor="@color/white"
+                android:visibility="gone"
+                android:textSize="18dp"/>
+
+        </LinearLayout>
+
+
     </LinearLayout>
 
 </RelativeLayout>

@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="11dp"
             android:layout_weight="5.43"
-            android:text="TEMP and HUMIDITY"
+            android:text="@string/temp_and_humidity"
             android:layout_marginLeft="20dp"
             android:textColor="#000000"
             android:textSize="20sp" />

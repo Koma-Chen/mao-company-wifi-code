@@ -1,5 +1,6 @@
 package com.wwr.clock;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -15,19 +16,26 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -39,6 +47,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -69,6 +78,7 @@ import com.moscase.voice.JsonParser;
 import com.moscase.voice.ParseTime;
 import com.moscase.voice.VoiceDialog;
 import com.mpw.constant.Constant;
+import com.mpw.constant.MyApplication;
 import com.mrwujay.cascade.service.Event;
 import com.mrwujay.cascade.service.FirstEvent;
 import com.mrwujay.cascade.service.FiveEvent;
@@ -79,25 +89,61 @@ import com.mrwujay.cascade.service.SexEvent;
 import com.mrwujay.cascade.service.ThreeEvent;
 import com.mrwujay.cascade.service.ZeorEvent;
 import com.umeng.message.PushAgent;
+import com.wifi.utils.City;
 import com.wifi.utils.DialogActivity;
 import com.wifi.utils.LogUtil;
 import com.wifi.utils.UpdateWifiInfo;
+import com.wifi.utils.parseXMLForWoeid;
 import com.wwr.clock.temp.SqliteOpenHelper;
+import com.wwr.clock.temp.getOutdoor;
 import com.wwr.locationselect.PagerActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
+import cn.sharesdk.framework.Platform;
+import cn.sharesdk.framework.PlatformActionListener;
 import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.onekeyshare.OnekeyShare;
 import de.greenrobot.event.EventBus;
 
+import static com.mpw.constant.Constant.haveOutMoudle;
+import static com.mpw.constant.MyApplication.isFinish;
+import static com.wwr.clock.temp.OutdoorTempView.ID_FROM_OUTDOOR;
+
 
 public class MainActivity extends Activity implements OnSmartLinkListener {
+    List<City> allCity_lists;
+    private String[] permissionsLocation = {
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+    };
+
+    private boolean getPermissoin = true;
+
+    private String[] permissionsRecord = {
+            Manifest.permission.RECORD_AUDIO
+    };
+
+    private boolean isRecordPer = false;
 
     private Button display;
 
@@ -117,13 +163,15 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
 
     private boolean isLastResult = false;
     ImageView iv_setting;
-    private int haveOutMoudle = -1;
+//    private int haveOutMoudle = -1;
 
     static ImageView iv_wifi;
     // 一进来就获取保存mac地址的本地SP文件
     Context context;
     String seatime;
-    private EditText mSsidEditText, mPasswordEditText;
+    private EditText mPasswordEditText;
+
+    private TextView mSsidEditText;
     View mainLayout;
     Button mStartButton, btnscoket, btncity, btnwendu, btnsearchtime;
     Spinner spcwendu;
@@ -155,9 +203,9 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
     LinearLayout tv_alarm_set;
     protected ISmartLinker mSnifferSmartLinker;
     private boolean mIsConncting = false;
-    protected Handler mViewHandler = new Handler();
+    //    protected Handler mViewHandler = new Handler();
     protected ProgressDialog mWaitingDialog;
-    Dialog dialog;
+    Dialog mWaitDialog;
     private BroadcastReceiver mWifiChangedReceiver;
     int hour;
     private int minute;
@@ -174,6 +222,10 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
     private UpdateWifiInfo mUwi;
     private SqliteOpenHelper sqliteOpenHelper;
     private SharedPreferences sp;
+    private SharedPreferences mSharedPreferencesPermission;
+    private SQLiteDatabase mDb;
+    private getOutdoor mGetTempNo;
+    private SharedPreferences mClock;
 
     // private String[] sex = { "3 "+getString(R.string.hour),
     // "6 "+getString(R.string.hour), "12 "+getString(R.string.hour),
@@ -182,13 +234,16 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
     // boolean isConnectWifi = false;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.mian_activity);
-
         //------------------我是一个测试用例
+//        Log.d("koma===city",getString(R.string.Citys));
 
         PushAgent.getInstance(context).onAppStart();
 
+        copyImage("The WiFi Weather APP QR Code.png");
+
+        MyApplication.city = getString(R.string.local_later);
         iv_setting = (ImageView) findViewById(R.id.iv_setting);
 
         int smartLinkVersion = getIntent().getIntExtra(EXTRA_SMARTLINK_VERSION,
@@ -209,6 +264,8 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
 
                     }
                 });
+        mClock = getSharedPreferences("clock",
+                Activity.MODE_PRIVATE);
 
         mWaitingDialog.setOnDismissListener(new OnDismissListener() {
             @Override
@@ -218,6 +275,7 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                 mIsConncting = false;
             }
         });
+
 
         iv_wifi = (ImageView) findViewById(R.id.iv_wifi);
         mWifiAdmin = new EspWifiAdminSimple(this); // 这是获得wifi管理器 从而获得wifi相关信息
@@ -230,23 +288,45 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
         texttime = (TextView) findViewById(R.id.texttime); // 显示时间
         btnwendu = (Button) findViewById(R.id.btn_wendo); // 温度按钮
         btncity = (Button) findViewById(R.id.btncity); // 城市按钮
-        mSsidEditText = (EditText) findViewById(R.id.editname); // wifi名字编辑框
+        mSsidEditText = (TextView) findViewById(R.id.editname); // wifi名字编辑框
+        mSsidEditText.setFocusable(false);
         mPasswordEditText = (EditText) findViewById(R.id.editpass);// wifi密码编辑框
+        mPasswordEditText.requestFocus();
         mStartButton = (Button) findViewById(R.id.conn_wifi);// 开始连接
         btnscoket = (Button) findViewById(R.id.buttonconn);// 更新信息按钮
-        mainLayout = (View) findViewById(R.id.view); // LinearLayout控件
+        mainLayout = (View) findViewById(R.id.view); //
         context = MainActivity.this;
         tv_alarm_set = (LinearLayout) findViewById(R.id.tv_alarm_set);
-        sp = getSharedPreferences("pass",MODE_PRIVATE);
+        sp = getSharedPreferences("pass", MODE_PRIVATE);
+        sp.edit().putString("key",
+                "unW1hqdUNgYgJkLSjeAa+0REOHTl2di3zEpengebpMgFX0" +
+                        "/MSNBd1JnN7tQPTcXbh615V9iE1oWwIDAQAB")
+                .commit();
 
+//        IntentFilter filter = new IntentFilter();
+//        filter.addAction("com.chenhang.a");
+//        filter.addAction("com.chenhang.b");
+//        filter.addAction("com.chenhang.c");
+//        filter.addAction("com.chenhang.d");
+//        filter.addAction("com.chenhang.e");
+//        filter.addAction("com.chenhang.f");
+//        filter.addAction("com.chenhang.g");
+//        registerReceiver(mBroadcastReceiver, filter);
+
+        handler.sendEmptyMessage(111);
 
         display = (Button) findViewById(R.id.display);
 
         SharedPreferences display_days = getSharedPreferences(
                 "displauy_days", Activity.MODE_PRIVATE);
-        sqliteOpenHelper = new SqliteOpenHelper(MainActivity.this,"Out.db",null,1);
+        sqliteOpenHelper = new SqliteOpenHelper(MainActivity.this, "Out.db", null, 1);
+        mDb = sqliteOpenHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("haveOut", 1);
+        mDb.insert("out", null, values);
 
-        display.setText("03".equals(display_days.getString("days", "03")) ? getString(R.string.display3) : getString(R.string.display1));
+        display.setText("03".equals(display_days.getString("days", "03")) ? getString(R.string
+                .display3) : getString(R.string.display1));
 
         display.setOnClickListener(new OnClickListener() {
             @Override
@@ -354,36 +434,36 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
         SharedPreferences sharedPreferences = getSharedPreferences(
                 "textOnoff1", Activity.MODE_PRIVATE);
         // 获取第一个开关的值
-        String textoff1 = sharedPreferences.getString("tt", "OFF");
+        String textoff1 = sharedPreferences.getString("tt", getString(R.string.off));
         // 如果第一个开关不为空
         if (textoff1 != null) {
             textOnoff1.setText(textoff1);
             // 第一个开关要是处于OFF状态，则设置开关字体为红色
-            if (textoff1.equals("OFF")) {
-                textOnoff1.setTextColor(android.graphics.Color.RED);
+            if (textoff1.equals(getString(R.string.off))) {
+
             } else {
-                textOnoff1.setText("ON");
-                textOnoff1.setTextColor(android.graphics.Color.WHITE);
+                textOnoff1.setText(getString(R.string.on));
+
             }
         } else {
-            textOnoff1.setText("OFF");
-            textOnoff1.setTextColor(android.graphics.Color.RED);
+            textOnoff1.setText(getString(R.string.off));
+
         }
 
         SharedPreferences sharedPreferences2 = getSharedPreferences("select",
                 Activity.MODE_PRIVATE);
-        String texton = sharedPreferences2.getString("text", "OFF");
+        String texton = sharedPreferences2.getString("text", getString(R.string.off));
         if (texton != null) {
             textonoff2.setText(texton);
-            if (texton.equals("OFF")) {
-                textonoff2.setTextColor(android.graphics.Color.RED);
+            if (texton.equals(getString(R.string.off))) {
+
             } else {
-                textonoff2.setText("ON");
-                textonoff2.setTextColor(android.graphics.Color.WHITE);
+                textonoff2.setText(getString(R.string.on));
+
             }
         } else {
-            textonoff2.setText("OFF");
-            textonoff2.setTextColor(android.graphics.Color.RED);
+            textonoff2.setText(getString(R.string.off));
+
         }
         EventBus.getDefault().register(this);
 
@@ -460,11 +540,24 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
         btncity.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                Intent intent = new Intent();
-                intent.setClass(MainActivity.this, PagerActivity.class);
-                startActivity(intent);
+                if (Build.VERSION.SDK_INT >= 23) {
+                    //6.0之后动态申请权限
+                    showLocationPer(btncity);
+                } else {
+//                    List<City > allCity_lists = MyApplication.FORE_LIST;
+                    if (allCity_lists != null) {
+                        Log.d("koma", "不为空");
+                        Intent intent = new Intent();
+                        intent.setClass(MainActivity.this, PagerActivity.class);
+                        startActivity(intent);
+                    } else {
+                        Log.d("koma", "为空");
+                    }
+                }
+
             }
         });
+
 
         // 温度的点击事件 当前是摄氏度的时候就换成华氏度 反之亦然
         btnwendu.setOnClickListener(new OnClickListener() {
@@ -503,7 +596,10 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
 
         voiceDialog = new VoiceDialog(MainActivity.this);
 
+
         setParam();
+        mSharedPreferencesPermission = getSharedPreferences("record", Context.MODE_PRIVATE);
+
 
         tv_alarm_set.setOnTouchListener(new OnTouchListener() {
 
@@ -511,45 +607,55 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
             public boolean onTouch(final View view, MotionEvent event) {
                 // TODO Auto-generated method stub
                 if (MotionEvent.ACTION_DOWN == event.getAction()) {
-                    if (count == 0) { // 每次事件（双击、单击、长按）只有第一次点击，才开启线程统计600ms内点击字数
-                        boolean a = new Handler().postDelayed(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                // TODO Auto-generated method stub
-                                if (count == 2) { // 双击
-                                    // Toast.makeText(MainActivity.this, "双击",
-                                    // Toast.LENGTH_SHORT).show();
-                                } else if (count == 1) {// 单击
-                                    // TODO Auto-generated method stub
-                                    startActivityForResult(new Intent(
-                                            MainActivity.this,
-                                            SelectTimeActivity.class), 1);
-                                } else if (count == 0) {
-
-                                    LogUtil.LOG("开始了");
-
-                                    starMillis = System.currentTimeMillis();
-                                    isLastResult = false;
-                                    int ret = mIat
-                                            .startListening(mRecognizerListener);
-                                    voiceDialog.show();
-
-                                    if (ret != ErrorCode.SUCCESS) {
-                                        // showTip("听写失败,错误码：" + ret);
-                                    } else {
-                                        // showTip("请开始说话");
-                                        // mIat.stopListening();
-                                    }
-                                    isLongClick = true;// 设置标志位，长按
-                                } else {
-
-                                }
-                                count = 0;// 判断结束，将count置为0
-                            }
-                        }, 340);
+                    isRecordPer = mSharedPreferencesPermission.getBoolean("recordPer", false);
+                    if (Build.VERSION.SDK_INT >= 23 && !isRecordPer) {
+                        //6.0之后动态申请权限
+                        showRecordPer(btncity);
+                        Log.d("koma", "申请权限");
                     } else {
-                        count = 0;
+                        if (count == 0) { // 每次事件（双击、单击、长按）只有第一次点击，才开启线程统计600ms内点击字数
+                            Log.d("chenhang", count + "");
+                            boolean a = new Handler().postDelayed(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    // TODO Auto-generated method stub
+                                    if (count == 2) { // 双击
+                                        LogUtil.LOG("开始了2");
+                                        // Toast.makeText(MainActivity.this, "双击",
+                                        // Toast.LENGTH_SHORT).show();
+                                    } else if (count == 1) {// 单击
+                                        LogUtil.LOG("开始了1");
+                                        // TODO Auto-generated method stub
+                                        startActivityForResult(new Intent(
+                                                MainActivity.this,
+                                                SelectTimeActivity.class), 1);
+                                    } else if (count == 0) {
+
+                                        LogUtil.LOG("开始了");
+
+                                        starMillis = System.currentTimeMillis();
+                                        isLastResult = false;
+                                        int ret = mIat
+                                                .startListening(mRecognizerListener);
+                                        voiceDialog.show();
+
+                                        if (ret != ErrorCode.SUCCESS) {
+                                            showTip("听写失败,错误码：" + ret);
+                                        } else {
+                                            // showTip("请开始说话");
+                                            // mIat.stopListening();
+                                        }
+                                        isLongClick = true;// 设置标志位，长按
+                                    } else {
+
+                                    }
+                                    count = 0;// 判断结束，将count置为0
+                                }
+                            }, 340);
+                        } else {
+                            count = 0;
+                        }
                     }
 
                     LogUtil.LOG("开始了" + count);
@@ -583,43 +689,8 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
         btnscoket.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                if (isWifiConnected(context) || Network(context)) {
-                    SharedPreferences macSP = getSharedPreferences("test",
-                            Activity.MODE_PRIVATE);
-                    if (macSP.getString("Adress", "").equals("")) {
-                        // mac地址为空的时候点击更新信息的按钮的提示
-                        AlertDialog.Builder builder = new AlertDialog.Builder(
-                                MainActivity.this); // 先得到构造器
-                        builder.setMessage(getString(R.string.alert_message_connect_device)); // 设置内容
-                        builder.setPositiveButton("OK",
-                                new DialogInterface.OnClickListener() {    // 设置确定按钮
-                                    @Override
-                                    public void onClick(DialogInterface dialog,
-                                                        int which) {
-                                        dialog.dismiss();
-                                    }
-                                });
-                        builder.create().show();
-                    } else {
-                        tijiao();
-                    }
-                } else {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(
-                            MainActivity.this); // 先得到构造器
+                initConfirm();
 
-                    builder.setMessage(getString(R.string.alert_message_connect_network));
-                    builder.setPositiveButton(getString(R.string.alert_ok),
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog,
-                                                    int which) {
-                                    dialog.dismiss();
-                                }
-                            });
-                    // 参数都设置完成了，创建并显示出来
-                    builder.create().show();
-
-                }
             }
         });
 
@@ -634,11 +705,34 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                     apSsid = mSsidEditText.getText().toString();
                     // 获得wifi的密码
                     apPassword = mPasswordEditText.getText().toString();
+
+                    if (apSsid.isEmpty()) {
+                        // 密码为空的提示
+                        AlertDialog.Builder builder = new AlertDialog.Builder(
+                                MainActivity.this); // 先得到构造器
+                        builder.setMessage("Please enter the wi-fi account");
+                        // 设置内容
+                        // 需要国际化
+                        builder.setPositiveButton(
+                                getString(R.string.alert_ok),
+                                new DialogInterface.OnClickListener() { // 设置确定按钮
+                                    @Override
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
+                                        dialog.dismiss();
+
+                                    }
+                                });
+                        // 参数都设置完成了，创建并显示出来
+                        builder.create().show();
+                        return;
+                    }
                     if (apPassword.isEmpty()) {
                         // 密码为空的提示
                         AlertDialog.Builder builder = new AlertDialog.Builder(
                                 MainActivity.this); // 先得到构造器
-                        builder.setMessage(getString(R.string.alert_message_sure_no_password)); // 设置内容
+                        builder.setMessage(getString(R.string.alert_message_sure_no_password));
+                        // 设置内容
                         // 需要国际化
                         builder.setPositiveButton(
                                 getString(R.string.alert_button_connect),
@@ -673,7 +767,7 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
 
                         Editor editor = sp.edit();
                         String ssidName = mSsidEditText.getText().toString().trim();
-                        editor.putString(ssidName,apPassword).commit();
+                        editor.putString(ssidName, apPassword).commit();
                     }
                 } else {
                     AlertDialog.Builder builder = new AlertDialog.Builder(
@@ -695,7 +789,8 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
         mWifiChangedReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService
+                        (Context.CONNECTIVITY_SERVICE);
                 NetworkInfo networkInfo = connectivityManager
                         .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
                 if (networkInfo != null && networkInfo.isConnected()) {
@@ -706,9 +801,14 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
 //                    mPasswordEditText.setText(SPremberPassword.getString(
 //                            getSSid(), ""));
                     String ssidName = mSsidEditText.getText().toString().trim();
-                    mPasswordEditText.setText(sp.getString(ssidName,""));
+                    mPasswordEditText.setText(sp.getString(ssidName, ""));
 
-                    SplashActivity.downImg();
+                    if (Build.VERSION.SDK_INT >= 27) {
+                        //6.0之后动态申请权限
+                        showStoragePer();
+                    } else {
+                        mSsidEditText.setText(getSSid());
+                    }
                 } else {
                     if (!Network(context)) {
                         iv_wifi.setImageResource(R.drawable.wifi_graw);
@@ -725,7 +825,95 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
         };
         registerReceiver(mWifiChangedReceiver, new IntentFilter(
                 ConnectivityManager.CONNECTIVITY_ACTION));
+        while (MyApplication.FORE_LIST == null) {
+//            Log.d("koma", "为空");
+        }
+        allCity_lists = MyApplication.FORE_LIST;
 
+
+    }
+
+    private void initRecord() {
+        if (count == 0) { // 每次事件（双击、单击、长按）只有第一次点击，才开启线程统计600ms内点击字数
+            boolean a = new Handler().postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    // TODO Auto-generated method stub
+                    if (count == 2) { // 双击
+                        // Toast.makeText(MainActivity.this, "双击",
+                        // Toast.LENGTH_SHORT).show();
+                    } else if (count == 1) {// 单击
+                        // TODO Auto-generated method stub
+                        startActivityForResult(new Intent(
+                                MainActivity.this,
+                                SelectTimeActivity.class), 1);
+                    } else if (count == 0) {
+
+                        LogUtil.LOG("开始了");
+
+                        starMillis = System.currentTimeMillis();
+                        isLastResult = false;
+                        int ret = mIat
+                                .startListening(mRecognizerListener);
+                        voiceDialog.show();
+
+                        if (ret != ErrorCode.SUCCESS) {
+                            showTip("听写失败,错误码：" + ret);
+                        } else {
+                            showTip("请开始说话");
+                            mIat.stopListening();
+                        }
+                        isLongClick = true;// 设置标志位，长按
+                    } else {
+
+                    }
+                    count = 0;// 判断结束，将count置为0
+                }
+            }, 340);
+        } else {
+            count = 0;
+        }
+    }
+
+    private void initConfirm() {
+        if (isWifiConnected(context) || Network(context)) {
+            SharedPreferences macSP = getSharedPreferences("test",
+                    Activity.MODE_PRIVATE);
+            if (macSP.getString("Adress", "").equals("")) {
+                // mac地址为空的时候点击更新信息的按钮的提示
+                AlertDialog.Builder builder = new AlertDialog.Builder(
+                        MainActivity.this); // 先得到构造器
+                builder.setMessage(getString(R.string.alert_message_connect_device)); // 设置内容
+                builder.setPositiveButton(getString(R.string.alert_ok),
+                        new DialogInterface.OnClickListener() {    // 设置确定按钮
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                builder.create().show();
+            } else {
+                tijiao();
+            }
+        } else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(
+                    MainActivity.this); // 先得到构造器
+
+            builder.setMessage(getString(R.string.alert_message_connect_network));
+            builder.setPositiveButton(getString(R.string.alert_ok),
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog,
+                                            int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            // 参数都设置完成了，创建并显示出来
+            builder.create().show();
+
+        }
     }
 
     // private class MyLocationListenner implements BDLocationListener {
@@ -758,6 +946,7 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
         mSnifferSmartLinker.setOnSmartLinkListener(null);
         try {
             unregisterReceiver(mWifiChangedReceiver);
+//            unregisterReceiver(mBroadcastReceiver);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -765,7 +954,7 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
 
     @Override
     public void onLinked(final SmartLinkedModule module) {
-        mViewHandler.post(new Runnable() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mac = module.getMac();
@@ -777,6 +966,19 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                 editor.commit();
             }
         });
+
+//        mViewHandler.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                mac = module.getMac();
+//                SharedPreferences macSP = getSharedPreferences("test",
+//                        Activity.MODE_PRIVATE);
+//                SharedPreferences.Editor editor = macSP.edit();
+//                editor.putString("Adress", mac);
+//                editor.clear();
+//                editor.commit();
+//            }
+//        });
     }
 
     // 获取城市ID
@@ -799,7 +1001,6 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
     public void onEventMainThread(FirstEvent event) {
         String msg = event.getMsg();
         if (msg != null) {
-
             btncity.setText(msg);
             // 修改之前 传递过来的cityname是用来显示和发送给服务器一起的
             // 显示的地方用到的比较多 所以传递过来的用来显示 即对象中的name 发送给服务器的
@@ -815,6 +1016,13 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
             SharedPreferences.Editor editor = sp_chooce.edit();
             editor.putString("cityName", msg);
             editor.commit();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    btnscoket.performClick();
+                }
+            }, 500);
+
         }
     }
 
@@ -859,11 +1067,7 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
             editor.clear();
             editor.commit();
         }
-        if (textOnoff1.getText().equals("OFF")) {
-            textOnoff1.setTextColor(android.graphics.Color.RED);
-        } else {
-            textOnoff1.setTextColor(android.graphics.Color.WHITE);
-        }
+
     }
 
     public void onEventMainThread(ZeorEvent event) {
@@ -877,16 +1081,13 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
             editor.clear();
             editor.commit();
         }
-        if (textonoff2.getText().equals("OFF")) {
-            textonoff2.setTextColor(android.graphics.Color.RED);
-        } else {
-            textonoff2.setTextColor(android.graphics.Color.WHITE);
-        }
+
     }
 
     @Override
     public void onCompleted() {
-        mViewHandler.post(new Runnable() {
+
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Toast.makeText(getApplicationContext(),
@@ -896,6 +1097,17 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                 mIsConncting = false;
             }
         });
+
+//        mViewHandler.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                Toast.makeText(getApplicationContext(),
+//                        getString(R.string.hiflying_smartlinker_completed),
+//                        Toast.LENGTH_SHORT).show();
+//                mWaitingDialog.dismiss();
+//                mIsConncting = false;
+//            }
+//        });
     }
 
     // 采用异步请求的方式获取模块的IP及mac地址
@@ -997,8 +1209,11 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                     editor.commit();
                     // 设置wifi图标为灰色
                     iv_wifi.setImageResource(R.drawable.wifi_graw);
-                    mProgressDialog
-                            .setMessage(getString(R.string.alert_message_config_fail));
+//                    mProgressDialog
+//                            .setMessage(getString(R.string.alert_message_config_fail));
+                    mProgressDialog.dismiss();
+                    Intent intent = new Intent(MainActivity.this, UpdateErrorActivity.class);
+                    startActivity(intent);
                 }
             }
         }
@@ -1006,10 +1221,9 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
 
     @Override
     public void onTimeOut() {
-        mViewHandler.post(new Runnable() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                // TODO Auto-generated method stub
                 Toast.makeText(getApplicationContext(),
                         getString(R.string.hiflying_smartlinker_timeout),
                         Toast.LENGTH_SHORT).show();
@@ -1018,6 +1232,18 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                 mIsConncting = false;
             }
         });
+//        mViewHandler.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                // TODO Auto-generated method stub
+//                Toast.makeText(getApplicationContext(),
+//                        getString(R.string.hiflying_smartlinker_timeout),
+//                        Toast.LENGTH_SHORT).show();
+//
+//                mWaitingDialog.dismiss();
+//                mIsConncting = false;
+//            }
+//        });
     }
 
     private long exitTime = 0;
@@ -1070,12 +1296,12 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                 if (hour == 0) {
                     hour = 12;
                 }
-                textampm.setText("AM");
+                textampm.setText(getString(R.string.am));
             } else {
                 if (hour > 12) {
                     hour = hour - 12;
                 }
-                textampm.setText("PM");
+                textampm.setText(getString(R.string.pm));
             }
         }
 
@@ -1086,14 +1312,88 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
 
     private static int times = 0;
     private static boolean isShow = false;
+    boolean isSuccess = false;
+//    private AlertDialog.Builder builder;
+//    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            if (intent.getAction().equals("com.chenhang.a")) {
+//                if (mWaitDialog.isShowing())
+//                    mWaitDialog.dismiss();
+//                Toast.makeText(MainActivity.this,
+//                        getString(R.string.toast_update_success), 2000).show();
+//                isSuccess = true;
+//                iv_wifi.setImageResource(R.drawable.wifi_blue);
+//                times = 0;
+//            } else if (intent.getAction().equals("com.chenhang.b")) {
+//                Log.e("进来了", "-1-1-1--1--1-1-1-1");
+//                mWaitDialog.dismiss();
+//                times = 0;
+//                System.out.println("提醒的是" + R.string.toast_update_faile);
+//                Toast.makeText(MainActivity.this,
+//                        getString(R.string.toast_update_faile), 2000).show();
+//            } else if (intent.getAction().equals("com.chenhang.c")) {
+//                System.out.println("进来了 -2-2-2-2-2-2-2-2-2"
+//                        + R.string.toast_network_anomaly);
+//                if (times < 6) {
+//                    tijiao();
+//                    // }else if(times >= 6){
+//                } else {
+//                    mWaitDialog.dismiss();
+//                    Toast.makeText(MainActivity.this,
+//                            getString(R.string.toast_network_anomaly), 2000)
+//                            .show();
+//                    times = 0;
+//                }
+//                times++;
+//            } else if (intent.getAction().equals("com.chenhang.d")) {
+//                Toast.makeText(MainActivity.this,
+//                        getString(R.string.toast_update_success), 2000)
+//                        .show(); // 需要国际化
+//                iv_wifi.setImageResource(R.drawable.wifi_blue);
+//            } else if (intent.getAction().equals("com.chenhang.e")) {
+//                Toast.makeText(MainActivity.this,
+//                        getString(R.string.toast_update_faile), 2000)
+//                        .show(); // 需要国际化
+//            } else if (intent.getAction().equals("com.chenhang.f")) {
+//                if (times < 3) {
+//                    shangchuan();
+//                } else if (times >= 3) {
+//                    Toast.makeText(MainActivity.this,
+//                            getString(R.string.toast_network_anomaly),
+//                            2000).show();
+//                    times = 0;
+//                }
+//                times++;
+//            } else if (intent.getAction().equals("com.chenhang.g")) {
+//
+//                Toast.makeText(context, "网络异常", Toast.LENGTH_LONG);
+//                if (builder == null) {
+//                    builder = new AlertDialog.Builder(context);
+//                    builder.setMessage("Network exception, please check the network!"); // 设置内容
+//                    builder.setPositiveButton("OK",
+//                            new DialogInterface.OnClickListener() { // 设置确定按钮
+//                                @Override
+//                                public void onClick(DialogInterface dialog,
+//                                                    int which) {
+//                                    dialog.dismiss();
+//                                }
+//                            });
+//                }
+//                builder.show();
+//            }
+//        }
+//    };
+
     Handler handler2 = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             // TODO Auto-generated method stub
             super.handleMessage(msg);
-            boolean isSuccess = false;
+            this.obtainMessage();
+
             if (msg.what == 1) {
-                dialog.dismiss();
+                mWaitDialog.dismiss();
                 Toast.makeText(MainActivity.this,
                         getString(R.string.toast_update_success), 2000).show();
                 isSuccess = true;
@@ -1102,26 +1402,57 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
 
             } else if (msg.what == -1) {// 连接失败
                 Log.e("进来了", "-1-1-1--1--1-1-1-1");
-                dialog.dismiss();
+                mWaitDialog.dismiss();
                 times = 0;
                 System.out.println("提醒的是" + R.string.toast_update_faile);
                 Toast.makeText(MainActivity.this,
                         getString(R.string.toast_update_faile), 2000).show();
 
+
             } else if (msg.what == -2) {
                 System.out.println("进来了 -2-2-2-2-2-2-2-2-2"
                         + R.string.toast_network_anomaly);
-                if (times < 6) {
-                    tijiao();
-                    // }else if(times >= 6){
-                } else {
-                    dialog.dismiss();
-                    Toast.makeText(MainActivity.this,
-                            getString(R.string.toast_network_anomaly), 2000)
-                            .show();
-                    times = 0;
-                }
-                times++;
+
+                if (cn.equals("00")) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            parseXMLForWoeid p = new parseXMLForWoeid(handler2);
+                            p.main(StringE);
+                            mUwi.parse();
+                        }
+                    }).start();
+                } else
+                    handler2.sendEmptyMessage(-3);
+
+
+            } else if (msg.what == -3) {
+                mWaitDialog.dismiss();
+                Toast.makeText(MainActivity.this,
+                        getString(R.string.toast_network_anomaly), 2000)
+                        .show();
+                times = 0;
+            } else if (msg.what == -4) {
+                mWaitDialog.dismiss();
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                String temp = (String) msg.obj;
+                String toast;
+                if (temp.contains("service"))
+                    toast = getString(R.string.serverbusy);
+                else
+                    toast = getString(R.string.datafailed);
+
+                builder.setMessage(toast);
+                builder.setCancelable(true);
+                builder.setPositiveButton(getString(R.string.alert_button_confirm), new
+                        DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                builder.show();
+
             }
         }
     };
@@ -1139,7 +1470,7 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
             str = texttime.getText().toString();
             // 如果是十二小时制 并且是下午则
             if ("00".equals(timeampm)
-                    && "PM".equals(textampm.getText().toString())) {
+                    && getString(R.string.pm).equals(textampm.getText().toString())) {
                 time = str.substring(0, str.indexOf(":"));
                 int nHour;
                 if (Integer.parseInt(time) == 12) {
@@ -1149,7 +1480,7 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                 }
                 time = nHour + "";
             } else if ("00".equals(timeampm)
-                    && "AM".equals(textampm.getText().toString())) {
+                    && getString(R.string.am).equals(textampm.getText().toString())) {
                 time = str.substring(0, str.indexOf(":"));
                 int nHour = Integer.parseInt(time);
                 if (nHour == 12) {
@@ -1179,7 +1510,7 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                 swc = "00";
             }
 
-            if (snoozeselect.equals("ON")) {
+            if (isSnooze) {
                 swl = "01";
             } else {
                 swl = "00";
@@ -1226,7 +1557,7 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
 
 
             String str = (clocktime + timeampm + swc + swl + wen + StringE
-                    + "**" + name + "**" + seatime + cn).trim();
+                    + "##" + name + "##" + seatime + cn).trim();
 
             /**
              * 新添加的数据     dimmer  显示天气的天数
@@ -1242,20 +1573,20 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
 
             // 发送信息给服务器
             System.out.println("发送给服务器的数据是" + str);
-            mUwi = new UpdateWifiInfo(this,str, handler2, cn, StringE,sqliteOpenHelper);
-            new Thread(mUwi).start();
 
+            MyApplication.xieyi = str;
+
+            mUwi = new UpdateWifiInfo(this, str, handler2, cn, StringE, sqliteOpenHelper);
+            new Thread(mUwi).start();
             if (!isShow) {
-                dialog = new DialogActivity(MainActivity.this);
-                dialog.setCanceledOnTouchOutside(false);
-                dialog.setCancelable(false);
-                dialog.show();
-                Toast.makeText(MainActivity.this,
-                        getString(R.string.toast_being_update), 500).show();
+                mWaitDialog = new DialogActivity(MainActivity.this);
+                mWaitDialog.setCanceledOnTouchOutside(false);
+                mWaitDialog.setCancelable(false);
+                mWaitDialog.show();
                 isShow = true;
             }
 
-            dialog.setOnDismissListener(new OnDismissListener() {
+            mWaitDialog.setOnDismissListener(new OnDismissListener() {
                 @Override
                 public void onDismiss(DialogInterface arg0) {
                     isShow = false;
@@ -1275,7 +1606,7 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
             str = texttime.getText().toString();
             // 如果是十二小时制 并且是下午则
             if ("00".equals(timeampm)
-                    && "PM".equals(textampm.getText().toString())) {
+                    && getString(R.string.pm).equals(textampm.getText().toString())) {
                 time = str.substring(0, str.indexOf(":"));
                 int nHour;
                 if (Integer.parseInt(time) == 12) {
@@ -1285,7 +1616,7 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                 }
                 time = nHour + "";
             } else if ("00".equals(timeampm)
-                    && "AM".equals(textampm.getText().toString())) {
+                    && getString(R.string.am).equals(textampm.getText().toString())) {
                 time = str.substring(0, str.indexOf(":"));
                 int nHour = Integer.parseInt(time);
                 if (nHour == 12) {
@@ -1386,6 +1717,7 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                 public void handleMessage(Message msg) {
                     // TODO Auto-generated method stub
                     super.handleMessage(msg);
+                    this.obtainMessage();
                     if (msg.what == 1) {
                         Toast.makeText(MainActivity.this,
                                 getString(R.string.toast_update_success), 2000)
@@ -1409,7 +1741,8 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                 }
             };
             // 发送信息给服务器
-            UpdateWifiInfo uwi = new UpdateWifiInfo(this,str, handler, cn, StringE,sqliteOpenHelper);
+            UpdateWifiInfo uwi = new UpdateWifiInfo(this, str, handler, cn, StringE,
+                    sqliteOpenHelper);
             new Thread(uwi).start();
         } catch (Exception e) {
 
@@ -1418,29 +1751,62 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
     }
 
     private String getSSid() {
-        // initGps();
-        WifiManager wm = (WifiManager) getSystemService(WIFI_SERVICE);
-        if (wm != null) {
-            WifiInfo wi = wm.getConnectionInfo();
-            if (wi != null) {
-                String ssid = wi.getSSID();
-                apBssid = wi.getMacAddress();
 
-                // 连上wifi之后看是否已经已经连上设备 若是则显示蓝色wifi标志即连通标志
-                SharedPreferences macSP = getSharedPreferences("test",
-                        Activity.MODE_PRIVATE);
-                if (!macSP.getString("Adress", "").equals("")) {
-                    iv_wifi.setImageResource(R.drawable.wifi_blue);
-                }
 
-                if (ssid.length() > 2 && ssid.startsWith("\"")
-                        && ssid.endsWith("\"")) {
-                    return ssid.substring(1, ssid.length() - 1);
-                } else {
-                    return ssid;
+        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context
+                .WIFI_SERVICE);
+        WifiInfo wifiInfo;
+
+        wifiInfo = wifiManager.getConnectionInfo();
+        if (wifiInfo.getSupplicantState() == SupplicantState.COMPLETED) {
+
+            if (wifiManager != null) {
+                if (wifiInfo != null) {
+                    String ssid = wifiInfo.getSSID();
+                    Log.d("koma====wifissid", ssid);
+                    apBssid = wifiInfo.getMacAddress();
+
+                    // 连上wifi之后看是否已经已经连上设备 若是则显示蓝色wifi标志即连通标志
+                    SharedPreferences macSP = getSharedPreferences("test",
+                            Activity.MODE_PRIVATE);
+                    if (!macSP.getString("Adress", "").equals("")) {
+                        iv_wifi.setImageResource(R.drawable.wifi_blue);
+                    }
+
+                    if (ssid.length() > 2 && ssid.startsWith("\"")
+                            && ssid.endsWith("\"")) {
+                        return ssid.substring(1, ssid.length() - 1);
+                    } else {
+                        return ssid;
+                    }
                 }
             }
         }
+
+        // initGps();
+        WifiManager wm = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
+//        if (wm != null) {
+//            WifiInfo wi = wm.getConnectionInfo();
+//            if (wi != null) {
+//                String ssid = wi.getSSID();
+//                Log.d("koma====wifissid",ssid);
+//                apBssid = wi.getMacAddress();
+//
+//                // 连上wifi之后看是否已经已经连上设备 若是则显示蓝色wifi标志即连通标志
+//                SharedPreferences macSP = getSharedPreferences("test",
+//                        Activity.MODE_PRIVATE);
+//                if (!macSP.getString("Adress", "").equals("")) {
+//                    iv_wifi.setImageResource(R.drawable.wifi_blue);
+//                }
+//
+//                if (ssid.length() > 2 && ssid.startsWith("\"")
+//                        && ssid.endsWith("\"")) {
+//                    return ssid.substring(1, ssid.length() - 1);
+//                } else {
+//                    return ssid;
+//                }
+//            }
+//        }
         return "";
     }
 
@@ -1449,17 +1815,27 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
     private TextView tv_temp_indoor;
     private TextView tv_temp_outdoor;
     private TextView feedback;
+//    private TextView mLanguageSelect;
 
     // 创建并显示popupWindow
     public void showPopupWindow(View view) {
 
         View contentView = View.inflate(MainActivity.this,
                 R.layout.popup_window, null);
-
+//        mLanguageSelect = contentView.findViewById(R.id.select);
         tv_share = (TextView) contentView.findViewById(R.id.tv_share);
         tv_temp_indoor = (TextView) contentView.findViewById(R.id.tv_temp_indoor);
         tv_temp_outdoor = (TextView) contentView.findViewById(R.id.tv_temp_outdoor);
         feedback = (TextView) contentView.findViewById(R.id.feedback);
+
+//        mLanguageSelect.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent intent = new Intent(MainActivity.this, LanguageActivity.class);
+//                startActivity(intent);
+//            }
+//        });
+
         tv_share.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
@@ -1499,7 +1875,8 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                     } else {
                         AlertDialog.Builder builder = new AlertDialog.Builder(
                                 MainActivity.this); // 先得到构造器
-                        builder.setMessage(getString(R.string.alert_message_connect_network)); // 设置内容
+                        builder.setMessage(getString(R.string.alert_message_connect_network)); //
+                        // 设置内容
                         builder.setPositiveButton(getString(R.string.alert_ok),
                                 new DialogInterface.OnClickListener() { // 设置确定按钮
                                     @Override
@@ -1522,19 +1899,40 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
         tv_temp_outdoor.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 SharedPreferences macSP = getSharedPreferences("test",
                         Activity.MODE_PRIVATE);
-                //这里为了结合UpdateWifiInfo一起来判断有没有室外温度模块，我也尝试过使用一个bollean变量来保存，可是
+
+                final String strOutDoor = "**" + macSP.getString("Adress", "") +
+                        "**temp*#humidity**";
+                mGetTempNo = new getOutdoor(handler);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mGetTempNo.getTemp(strOutDoor, ID_FROM_OUTDOOR);
+                    }
+                }).start();
+
+
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+
+                //这里为了结合UpdateWifiInfo一起来判断有没有室外温度模块，我也尝试过使用一个boolean变量来保存，可是
                 //bollean变量在每次启动程序的时候会被初始化；--by chenhang
-                SQLiteDatabase db = sqliteOpenHelper.getWritableDatabase();
-                ContentValues values = new ContentValues();
-                values.put("haveOut",1);
-                db.insert("out",null,values);
-                Cursor cursor = db.query("out",null,null,null,null,null,null);
-                if (cursor.moveToFirst()){
-                    haveOutMoudle = cursor.getInt(cursor.getColumnIndex("haveOut"));
+                mDb = sqliteOpenHelper.getWritableDatabase();
+                Cursor cursor = mDb.query("out", null, null, null, null, null, null);
+                if (cursor.moveToFirst()) {
+                    if (cursor.getInt(cursor.getColumnIndex("haveOut")) == 1)
+                        haveOutMoudle = false;
+                    else
+                        haveOutMoudle = true;
                     Log.d("chenhang", haveOutMoudle + "");
                 }
+
                 if (macSP.getString("Adress", "").equals("")) {
                     // mac地址为空的时候点击更新信息的按钮的提示
                     AlertDialog.Builder builder = new AlertDialog.Builder(
@@ -1550,7 +1948,8 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                                 }
                             });
                     builder.create().show();
-                } else if (haveOutMoudle == 1) {
+                } else if (!haveOutMoudle) {
+                    Log.d("koma111", "" + haveOutMoudle);
                     AlertDialog.Builder builder = new AlertDialog.Builder(
                             MainActivity.this); // 先得到构造器
                     builder.setMessage(getString(R.string.alert_message_missing_model)); // 设置内容
@@ -1565,6 +1964,7 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                             });
                     builder.create().show();
                 } else {
+
                     if (isWifiConnected(context) || Network(context)) {
                         Intent intent = new Intent();
                         intent.setClass(MainActivity.this, TempActivity.class);
@@ -1573,7 +1973,8 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                     } else {
                         AlertDialog.Builder builder = new AlertDialog.Builder(
                                 MainActivity.this); // 先得到构造器
-                        builder.setMessage(getString(R.string.alert_message_connect_network)); // 设置内容
+                        builder.setMessage(getString(R.string.alert_message_connect_network)); //
+                        // 设置内容
                         builder.setPositiveButton(getString(R.string.alert_ok),
                                 new DialogInterface.OnClickListener() { // 设置确定按钮
                                     @Override
@@ -1587,7 +1988,7 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                     }
                 }
 
-                db.close();
+                mDb.close();
                 pop.dismiss();
             }
         });
@@ -1599,9 +2000,18 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
 
                 Intent data = new Intent(Intent.ACTION_SENDTO);
                 data.setData(Uri.parse("mailto:sales@moscase8.com"));
-                data.putExtra(Intent.EXTRA_SUBJECT, "User feedback");
+                data.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.feedback));
                 data.putExtra(Intent.EXTRA_TEXT,
-                        "Please enter your comments or Suggestions");
+                        getString(R.string.feedbackcontent));
+
+                PackageManager packageManager = getPackageManager();
+                List<ResolveInfo> applist = packageManager.queryIntentActivities(data, 0);
+                if (applist == null || applist.isEmpty()) {
+                    Toast.makeText(MainActivity.this, getString(R.string.check_mail), Toast
+                            .LENGTH_SHORT).show();
+                    return;
+                }
+
                 startActivity(data);
 
                 pop.dismiss();
@@ -1623,25 +2033,45 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
         OnekeyShare oks = new OnekeyShare();
         // 关闭sso授权
         oks.disableSSOWhenAuthorize();
+        oks.setCallback(new PlatformActionListener() {
+            @Override
+            public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
+                Log.d("koma", "分享完成" + platform.getName());
+            }
+
+            @Override
+            public void onError(Platform platform, int i, Throwable throwable) {
+                Log.d("koma", "分享出错" + throwable.toString());
+            }
+
+            @Override
+            public void onCancel(Platform platform, int i) {
+                Log.d("koma", "取消分享");
+            }
+        });
         // getString(R.string.app_name));
         // title标题，印象笔记、邮箱、信息、微信、人人网和QQ空间使用
-        oks.setTitle("Wi-Fi Weather Share");
+        oks.setTitle(getString(R.string.linktitle));
         // titleUrl是标题的网络链接，仅在人人网和QQ空间使用
-        oks.setTitleUrl("https://app.moscase8.com/apps/8001D/Wi-FiWeather.apk");
+        oks.setTitleUrl("http://appurl.me/13883060");
         // text是分享文本，所有平台都需要这个字段
-        oks.setText("这个很好用，也推荐给你用用  下载请戳https://app.moscase8.com/apps/8001D/Wi-FiWeather.apk");
+
+        oks.setText(getString(R.string.link) + ":http://appurl.me/13883060");
         // imagePath是图片的本地路径，Linked-In以外的平台都支持此参数
-        oks.setImagePath("/sdcard/share.png");// 确保SDcard下面存在此张图片
+//        String path ="file:///android_asset/a.jpg";   //以name存在目录中
+        oks.setImagePath(getFilesDir() + "/The WiFi Weather APP QR Code.png");// 确保SDcard下面存在此张图片
         // url仅在微信（包括好友和朋友圈）中使用
-        oks.setUrl("https://app.moscase8.com/apps/8001D/Wi-FiWeather.apk");
+        oks.setUrl("http://appurl.me/13883060");
         // comment是我对这条分享的评论，仅在人人网和QQ空间使用
         // oks.setComment("我是测试评论文本");
         // site是分享此内容的网站名称，仅在QQ空间使用
         oks.setSite(getString(R.string.app_name));
         // siteUrl是分享此内容的网站地址，仅在QQ空间使用
-        oks.setSiteUrl("https://app.moscase8.com/apps/8001D/Wi-FiWeather.apk");
+        oks.setSiteUrl("http://appurl.me/13883060");
         // 启动分享GUI
         oks.show(this);
+
+
     }
 
     // 查看手机联网情况，看是否有网络
@@ -1687,14 +2117,16 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
         String lag = "mandarin";
         mIat.setParameter(SpeechConstant.LANGUAGE, "en_us");
 
-        if (lag.equals("en_us")) {
-            // 设置语言
-            mIat.setParameter(SpeechConstant.LANGUAGE, "en_us");
-        } else {
+        String locale = Locale.getDefault().getLanguage();
+        if (locale.equals("zh")) {
             // 设置语言
             mIat.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
             // 设置语言区域
             mIat.setParameter(SpeechConstant.ACCENT, lag);
+        } else {
+            // 设置语言
+            mIat.setParameter(SpeechConstant.LANGUAGE, "en_us");
+
         }
 
         // 设置语音前端点:静音超时时间，即用户多长时间不说话则当做超时处理
@@ -1727,10 +2159,14 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
             // Tips：
             // 错误码：10118(您没有说话)，可能是录音机权限被禁，需要提示用户打开应用的录音权限。
             // 如果使用本地功能（语记）需要提示用户开启语记的录音权限。
+            Log.d("koma", error.toString() + "");
             voiceDialog.dismiss();
+            if (error.getErrorCode() == 20001)
+                Toast.makeText(MainActivity.this, getString(R.string.dontfindnet), Toast
+                        .LENGTH_SHORT).show();
             error.getPlainDescription(true);
             if ((System.currentTimeMillis() - starMillis) > 350) {
-                showTip("请说话");
+                showTip(getString(R.string.pleasetalk));
             }
         }
 
@@ -1796,6 +2232,7 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
         try {
             JSONObject resultJson = new JSONObject(results.getResultString());
             sn = resultJson.optString("sn");
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -1808,9 +2245,18 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
         }
 
         // String result = ParseTime.parse(resultBuffer.toString());
+        final String result;
 
-        final String result = ParseTime.pTime(resultBuffer.toString());
+        String locale = Locale.getDefault().getLanguage();
+        Log.d("koma===当前系统语言是", locale);
+        if (locale.equals("zh")) {
+            result = ParseTime.pTime(resultBuffer.toString());
+        } else {
+            result = ParseTime.ParseEnglishTime(resultBuffer.toString());
+        }
         final String OnOff = ParseTime.ParseOnOff(resultBuffer.toString());
+        Log.d("koma---sn", result);
+        Log.d("koma---sn1", resultBuffer.toString());
 
         LogUtil.LOG("" + isLastResult);
 
@@ -1824,7 +2270,7 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
             view.setTextSize(18);
             view.setText(getDialogMessage(result, OnOff));
             voiceDialog2.setView(view);
-            voiceDialog2.setPositiveButton("OK",
+            voiceDialog2.setPositiveButton(getString(R.string.alert_ok),
                     new DialogInterface.OnClickListener() { // 设置确定按钮
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -1942,6 +2388,7 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
             is24 = true;
             timeampm = "01";
             textampm.setText("");
+            apm = "";
         } else { // 12小时制时
             is24 = false;
             timeampm = "00";
@@ -1949,12 +2396,14 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
                 if (hour == 0) {
                     hour = 12;
                 }
-                textampm.setText("AM");
+                textampm.setText(getString(R.string.am));
+                apm = getString(R.string.am);
             } else {
                 if (hour > 12) {
                     hour = hour - 12;
                 }
-                textampm.setText("PM");
+                textampm.setText(getString(R.string.pm));
+                apm = getString(R.string.pm);
             }
         }
 
@@ -1963,6 +2412,18 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
         Editor e = spAlarm.edit();
         e.putString("alarm", alarm);
         e.commit();
+
+
+
+
+        if (apm.equals(getString(R.string.pm))) {
+            mClock.edit().putInt("hour", hour + 12).commit();
+        } else {
+            mClock.edit().putInt("hour", hour).commit();
+        }
+
+        mClock.edit().putInt("min", minute).commit();
+        Log.d("koma", "获取的时间是" + hour + minute);
 
         texttime.setText(String.format("%02d", hour) + ":"
                 + String.format("%02d", minute));
@@ -1991,7 +2452,8 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
         }
 
         if ("ERROR".equals(onOff) & "ERROR".equals(time)) {
-            result = "请说出正确时间";
+
+            result = getString(R.string.righttime);
         }
 
         return result;
@@ -2005,24 +2467,24 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
 
         if (!"ERROR".equals(result)) {
             setAlarmTime(result);
-
         }
 
         if ("ALARM_ON".equals(OnOff)) {
-            textOnoff1.setText("ON");
-            textOnoff1.setTextColor(android.graphics.Color.WHITE);
+            textOnoff1.setText(getString(R.string.on));
 
-            if (!preferences.getBoolean("alarm1", false) && !preferences.getBoolean("alarm2", false)) {
+
+            if (!preferences.getBoolean("alarm1", false) && !preferences.getBoolean("alarm2",
+                    false)) {
                 editor.putBoolean("alarm1", true);
                 editor.putBoolean("alarm2", false);
                 editor.commit();
             }
         } else if ("ALARM_OFF".equals(OnOff)) {
-            textOnoff1.setTextColor(android.graphics.Color.RED);
-            textOnoff1.setText("OFF");
+
+            textOnoff1.setText(getString(R.string.off));
 
             // 闹钟关了贪睡也需要跟着关闭
-            textonoff2.setTextColor(android.graphics.Color.RED);
+
             textonoff2.setText("OFF");
 
             editor.putBoolean("alarm1", false);
@@ -2031,31 +2493,32 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
             editor.commit();
 
         } else if ("SNOOZE_ON".equals(OnOff)) {
-            textonoff2.setText("ON");
-            textonoff2.setTextColor(android.graphics.Color.WHITE);
+            textonoff2.setText(getString(R.string.on));
 
-            textOnoff1.setText("ON");
-            textOnoff1.setTextColor(android.graphics.Color.WHITE);
+
+            textOnoff1.setText(getString(R.string.on));
+
 
 
             editor.putBoolean("isSnooze", true);
-            if (!preferences.getBoolean("alarm1", false) && !preferences.getBoolean("alarm2", false)) {
+            if (!preferences.getBoolean("alarm1", false) && !preferences.getBoolean("alarm2",
+                    false)) {
                 editor.putBoolean("alarm1", true);
                 editor.putBoolean("alarm2", false);
             }
             editor.commit();
 
         } else if ("SNOOZE_OFF".equals(OnOff)) {
-            textonoff2.setTextColor(android.graphics.Color.RED);
+
             textonoff2.setText("OFF");
             editor.putBoolean("isSnooze", false);
             editor.commit();
 
         } else if ("ALL_OFF".equals(OnOff)) {
-            textonoff2.setTextColor(android.graphics.Color.RED);
-            textonoff2.setText("OFF");
-            textOnoff1.setTextColor(android.graphics.Color.RED);
-            textOnoff1.setText("OFF");
+
+            textonoff2.setText(getString(R.string.off));
+
+            textOnoff1.setText(getString(R.string.off));
 
             editor.putBoolean("alarm1", false);
             editor.putBoolean("alarm2", false);
@@ -2064,12 +2527,13 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
 
         } else if ("ALL_ON".equals(OnOff)) {
 
-            textOnoff1.setText("ON");
-            textOnoff1.setTextColor(android.graphics.Color.WHITE);
-            textonoff2.setText("ON");
-            textonoff2.setTextColor(android.graphics.Color.WHITE);
+            textOnoff1.setText(getString(R.string.on));
 
-            if (!preferences.getBoolean("alarm1", false) && !preferences.getBoolean("alarm2", false)) {
+            textonoff2.setText(getString(R.string.on));
+
+
+            if (!preferences.getBoolean("alarm1", false) && !preferences.getBoolean("alarm2",
+                    false)) {
                 editor.putBoolean("alarm1", true);
                 editor.putBoolean("alarm2", false);
             }
@@ -2082,5 +2546,327 @@ public class MainActivity extends Activity implements OnSmartLinkListener {
         // Toast.makeText(context, "请说出正确的时间", 0).show();
         // }
     }
+
+    public void showLocationPer(View v) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission
+                .ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission
+                .ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission
+                .WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission
+                .READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestLocationPermissions(v);
+        } else {
+//
+            if (allCity_lists != null) {
+                Log.d("koma", "不为空2301");
+                Intent intent = new Intent();
+                intent.setClass(MainActivity.this, PagerActivity.class);
+                startActivity(intent);
+            } else {
+//                Log.d("koma", "为空");
+            }
+        }
+    }
+
+    public void showStoragePer() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission
+                .ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission
+                .ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission
+                .WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission
+                .READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestStoragePermissions();
+        } else {
+
+        }
+    }
+
+    public void showRecordPer(View v) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission
+                .RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED
+                ) {
+            requestRecordPermissions(v);
+        } else {
+
+            starMillis = System.currentTimeMillis();
+            isLastResult = false;
+            int ret = mIat
+                    .startListening(mRecognizerListener);
+            voiceDialog.show();
+
+            if (ret != ErrorCode.SUCCESS) {
+                showTip("听写失败,错误码：" + ret);
+            } else {
+                // showTip("请开始说话");
+                // mIat.stopListening();
+            }
+            isLongClick = true;// 设置标志位，长按
+            isRecordPer = true;
+            count = 0;
+        }
+    }
+
+    private void requestLocationPermissions(View v) {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION)
+                || ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                || ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                || ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.READ_PHONE_STATE)
+                ) {
+            ActivityCompat
+                    .requestPermissions(MainActivity.this, permissionsLocation,
+                            123);
+        } else {
+            ActivityCompat.requestPermissions(this, permissionsLocation, 123);
+        }
+    }
+
+    private void requestStoragePermissions() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION)
+                || ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                || ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                || ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.READ_PHONE_STATE)
+                ) {
+            ActivityCompat
+                    .requestPermissions(MainActivity.this, permissionsLocation,
+                            12345);
+        } else {
+            ActivityCompat.requestPermissions(this, permissionsLocation, 12345);
+        }
+    }
+
+    private void requestRecordPermissions(View v) {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.RECORD_AUDIO)
+                ) {
+            ActivityCompat
+                    .requestPermissions(MainActivity.this, permissionsRecord,
+                            1234);
+        } else {
+            ActivityCompat.requestPermissions(this, permissionsRecord, 1234);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+
+
+        if (requestCode == 123) {
+            if (PermissionUtil.verifyPermissions(grantResults)) {
+//                List<City > allCity_lists = MyApplication.FORE_LIST;
+                if (allCity_lists != null) {
+                    Log.d("koma", "不为空");
+                    Intent intent = new Intent();
+                    intent.setClass(MainActivity.this, PagerActivity.class);
+                    startActivity(intent);
+                } else {
+//                    Log.d("koma", "为空");
+                }
+                mSsidEditText.setText(getSSid());
+
+            } else {
+                Toast.makeText(this, "请授予权限", Toast.LENGTH_SHORT).show();
+            }
+        } else if (requestCode == 1234) {
+            starMillis = System.currentTimeMillis();
+            isLastResult = false;
+            int ret = mIat
+                    .startListening(mRecognizerListener);
+            voiceDialog.show();
+
+            if (ret != ErrorCode.SUCCESS) {
+                showTip("听写失败,错误码：" + ret);
+            } else {
+                // showTip("请开始说话");
+                // mIat.stopListening();
+            }
+            isLongClick = true;// 设置标志位，长按
+            isRecordPer = true;
+            count = 0;
+            Editor editor = mSharedPreferencesPermission.edit();//获取编辑器
+            editor.putBoolean("recordPer", isRecordPer);
+            editor.commit();
+        } else if (requestCode == 12345) {
+            if (PermissionUtil.verifyPermissions(grantResults)){
+                mSsidEditText.setText(getSSid());
+            }else {
+                new AlertDialog.Builder(this)
+                        .setMessage(getString(R.string.checkPermission))
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        })
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                showStoragePer();
+                            }
+                        })
+                        .create().show();
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+}
+
+    @Override
+    protected void onResume() {
+
+//        mSsidEditText.setText(getSSid());
+        String ssidName = mSsidEditText.getText().toString().trim();
+        mPasswordEditText.setText(sp.getString(ssidName, ""));
+
+        if (isFinish) {
+            Log.d("koma", "改了语言");
+            finish();
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            isFinish = false;
+        }
+        super.onResume();
+
+
+        boolean alarm1 = mClock.getBoolean("alarm1", false);
+        boolean alarm2 = mClock.getBoolean("alarm2", false);
+        boolean isSnooze = mClock.getBoolean("isSnooze", false);
+
+        if (alarm1 || alarm2)
+            textalarm.setTextColor(Color.WHITE);
+
+        if (!alarm1 && !alarm2)
+            textalarm.setTextColor(Color.RED);
+
+        if (!isSnooze)
+            textsnooze.setTextColor(Color.RED);
+        else
+            textsnooze.setTextColor(Color.WHITE);
+    }
+
+    Handler handler = new Handler() {
+        private AlertDialog.Builder builder;
+
+        public void handleMessage(Message msg) {
+            this.obtainMessage();
+            if (msg.what == -1) {
+                Log.e("发送来的what是-1", "发送来的what是-1");
+                Toast.makeText(context, "网络异常", Toast.LENGTH_LONG);
+                if (builder == null) {
+                    builder = new AlertDialog.Builder(context);
+                    builder.setMessage(getString(R.string.checkNetwork)); // 设置内容
+                    builder.setPositiveButton(getString(R.string.alert_ok),
+                            new DialogInterface.OnClickListener() { // 设置确定按钮
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                }
+                builder.show();
+            } else {
+                Log.e("发送来的what是1", "发送来的what是1");
+            }
+        }
+
+    };
+
+    private void copyImage(String dbName) {
+        File destFile = new File(getFilesDir(), dbName);
+        //getFileDir(),获取当前目录，就是data/data/包名/files
+        if (destFile.exists()) {
+            return;
+        }
+        FileOutputStream out = null;
+        InputStream in = null;
+        try {
+            in = getAssets().open(dbName);
+
+            out = new FileOutputStream(destFile);
+
+            int len = 0;
+            byte[] buffer = new byte[1024];
+            while ((len = in.read(buffer)) != -1) {
+                out.write(buffer, 0, len);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        Log.d("koma", "异常终止");
+        super.onSaveInstanceState(outState);
+    }
+
+
+
+    public static void trustAllHosts() {
+        // Create a trust manager that does not validate certificate chains
+        // Android use X509 cert
+        TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                return new java.security.cert.X509Certificate[]{};
+            }
+
+            public void checkClientTrusted(X509Certificate[] chain,
+                                           String authType) throws CertificateException {
+            }
+
+            public void checkServerTrusted(X509Certificate[] chain,
+                                           String authType) throws CertificateException {
+            }
+        }};
+
+        // Install the all-trusting trust manager
+        try {
+            SSLContext sc = SSLContext.getInstance("TLS");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection
+                    .setDefaultSSLSocketFactory(sc.getSocketFactory());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static HostnameVerifier DO_NOT_VERIFY = new HostnameVerifier() {
+        public boolean verify(String hostname, SSLSession session) {
+            return true;
+        }
+    };
 
 }

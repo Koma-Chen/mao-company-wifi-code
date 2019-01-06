@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.mpw.constant.Constant;
 import com.mpw.constant.InfoBean;
+import com.mpw.constant.MyApplication;
 import com.wwr.clock.IndoorTempView;
 
 import java.io.BufferedReader;
@@ -18,11 +19,10 @@ import java.net.Socket;
  * 解析 indoor
  */
 
-public class getIndoorTemp implements GetTempFromServer {
+public class getIndoorTemp{
 
     private Handler handler;
 
-    @Override
     public void getTemp(String content,int id, Handler handler) {
         OutputStream os = null;
         Socket socket = null;
@@ -31,7 +31,7 @@ public class getIndoorTemp implements GetTempFromServer {
 
         Log.e("Socket的各种状态4","s:	"+socket+"	is:	"+is+"	os:	"+os);
         try {
-            socket = new Socket("120.25.207.192", 8818);
+            socket = new Socket(MyApplication.server, MyApplication.port);
             os = socket.getOutputStream();
             is = socket.getInputStream();
             // 向服务器端发送一条消息
@@ -100,8 +100,10 @@ public class getIndoorTemp implements GetTempFromServer {
                     ib.setStrH(strs[6]);
                 }
                 if (id == IndoorTempView.ID_FROM_INDOOR){
+
                     Constant.mlistIndoor.add(ib);
                 }else if(id == IndoorTempView.ID_FROM_OUTDOOR){
+
                     Constant.mlistOutdoor.add(ib);
                 }
 

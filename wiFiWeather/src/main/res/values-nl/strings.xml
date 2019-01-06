@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ssdk_oks_share">Share</string>
+    <string name="ssdk_oks_sharing">Het delen van de werking werkt op de achtergrond…</string>
+    <string name="ssdk_oks_share_failed">Operation failed</string>
+    <string name="ssdk_oks_share_completed">Operation succeeded</string>
+    <string name="ssdk_oks_share_canceled">Operation canceled</string>
+    <string name="ssdk_oks_cancel">Cancel</string>
+    <string name="ssdk_oks_multi_share">Photo Sharing</string>
+    <string name="ssdk_oks_confirm">Confirm</string>
+    <string name="ssdk_oks_contacts">Contacts</string>
+    <string name="ssdk_oks_pull_to_refresh">Pull down to refresh</string>
+    <string name="ssdk_oks_release_to_refresh">Release to refresh</string>
+    <string name="ssdk_oks_refreshing">Refreshing…</string>
+
+    <string name="ssdk_weibo_oauth_regiseter">Authorization</string>
+    <string name="ssdk_website">http://www.mob.com</string>
+    <string name="ssdk_weibo_upload_content">Share picture</string>
+    <string name="ssdk_wechat_client_inavailable">Wechat client not exists or the version is too low</string>
+    <string name="ssdk_google_plus_client_inavailable">Google+ client not exists or the version is too low</string>
+    <string name="ssdk_qq_client_inavailable">Mobile QQ client not exists or the version is too low</string>
+    <string name="ssdk_pinterest_client_inavailable">Pinterest client not exists or the version is too low</string>
+    <string name="ssdk_instagram_client_inavailable">Instagram client not exists or the version is too low</string>
+    <string name="ssdk_yixin_client_inavailable">Yixin client not exists or the version is too low</string>
+    <string name="ssdk_line_client_inavailable">Line client not exists or the version is too low</string>
+    <string name="ssdk_kakaotalk_client_inavailable">KakaoTalk client not exists or the version is too low</string>
+    <string name="ssdk_kakaostory_client_inavailable">KakaoStory client not exists or the version is too low</string>
+    <string name="ssdk_whatsapp_client_inavailable">WhatsApp client not exists or the version is too low</string>
+    <string name="ssdk_laiwang_client_inavailable">Laiwangs client not exists or the version is too low</string>
+    <string name="ssdk_alipay_client_inavailable">Alipay client not exists or the version is too low</string>
+    <string name="ssdk_facebookmessenger_client_inavailable">Facebookmessenger client not exists or the version is too low</string>
+
+    <string name="ssdk_sinaweibo">Sina Weibo</string>
+    <string name="ssdk_tencentweibo">Tencent Weibo</string>
+    <string name="ssdk_qzone">QZone</string>
+    <string name="ssdk_wechat">WeChat</string>
+    <string name="ssdk_wechatmoments">WeChat Moments</string>
+    <string name="ssdk_wechatfavorite">WeChat Favorites</string>
+    <string name="ssdk_facebook">Facebook</string>
+    <string name="ssdk_twitter">Twitter</string>
+    <string name="ssdk_renren">Renren</string>
+    <string name="ssdk_kaixin">Kaixin</string>
+    <string name="ssdk_email">Email</string>
+    <string name="ssdk_shortmessage">Short Message</string>
+    <string name="ssdk_sohumicroblog">Sohu Microblog</string>
+    <string name="ssdk_neteasemicroblog">Netease Microblog</string>
+    <string name="ssdk_douban">Douban</string>
+    <string name="ssdk_youdao">Youdao</string>
+    <string name="ssdk_evernote">Evernote</string>
+    <string name="ssdk_linkedin">Linked in</string>
+    <string name="ssdk_googleplus">Google+</string>
+    <string name="ssdk_foursquare">FourSquare</string>
+    <string name="ssdk_qq">QQ</string>
+    <string name="ssdk_sohusuishenkan">Sohu Suishenkan</string>
+    <string name="ssdk_pinterest">Pinterest</string>
+    <string name="ssdk_flickr">Flickr</string>
+    <string name="ssdk_tumblr">Tumblr</string>
+    <string name="ssdk_dropbox">Dropbox</string>
+    <string name="ssdk_vkontakte">VK</string>
+    <string name="ssdk_instagram">Instagram</string>
+    <string name="ssdk_yixin">Yixin</string>
+    <string name="ssdk_yixinmoments">Yixin Moments</string>
+    <string name="ssdk_mingdao">Mingdao</string>
+    <string name="ssdk_kakaotalk">KakaoTalk</string>
+    <string name="ssdk_kakaostory">KakaoStory</string>
+    <string name="ssdk_line">Line</string>
+    <string name="ssdk_bluetooth">Bluetooth</string>
+    <string name="ssdk_whatsapp">WhatsApp</string>
+    <string name="ssdk_pocket">Pocket</string>
+    <string name="ssdk_instapaper">Instapaper</string>
+    <string name="ssdk_instapaper_email">Email</string>
+    <string name="ssdk_instapaper_pwd">Password</string>
+    <string name="ssdk_instapaper_login">Sign In</string>
+    <string name="ssdk_instapaper_logining">Sign In…</string>
+    <string name="ssdk_instapager_email_or_password_incorrect">Email or Password incorrect</string>
+    <string name="ssdk_facebookmessenger">Facebook Messenger</string>
+    <string name="ssdk_laiwang">Laiwang</string>
+    <string name="ssdk_laiwangmoments">Laiwang Moments</string>
+    <string name="ssdk_alipay">Alipay</string>
+    <string name="ssdk_plurk">Plurk</string>
+
+    <string name="ssdk_share_to_qzone">Share To QZone</string>
+    <string name="ssdk_share_to_qq">Share To QQ</string>
+    <string name="ssdk_share_to_googleplus">Share To Google+</string>
+    <string name="ssdk_share_to_facebook">Share To Facebook</string>
+    <string name="ssdk_mingdao_share_content">Share webpage</string>
+    <string name="ssdk_share_to_mingdao">Share To Mingdao</string>
+    <string name="ssdk_share_to_qzone_default">Shared from %s</string>
+    <string name="ssdk_use_login_button">use login button instead</string>
+
+
+    <string name="online_config">OnlineConfig</string>
+    <string name="make_crash">Make me crash!!</string>
+    <string name="kv_event">K-V Event</string>
+    <string name="normal_event">Event</string>
+    <string name="event_duration">Value-Type</string>
+    <string name="page_stack">Page in Fragment Stack</string>
+    <string name="page_tabs">Page in Fragment Tabs</string>
+    <string name="social_analytics">Social Analytics</string>
+    <string name="js_in_webview">JS Analytics in Webivew</string>
+    <string name="flush_cache">send cache message ,right now !</string>
+    <string name="signin">signin</string>
+    <string name="signoff">signoff</string>
+    <string name="orderid">Game pay(contains orderid)</string>
+    <string name="event_cc">Categorical Counter Event</string>
+    <string name="app_name">WiFi Weather</string>
+    <string name="action_settings">instellingen</string>
+
+
+    <string name="hiflying_smartlinker_ssid">SSID:</string>
+    <string name="hiflying_smartlinker_password">wachtwoord:</string>
+    <string name="hiflying_smartlinker_start">begin</string>
+    <string name="hiflying_smartlinker_waiting">Gelieve later...</string>
+    <string name="hiflying_smartlinker_timeout">Configuratie time-out!</string>
+    <string name="hiflying_smartlinker_completed">SmartLink</string>
+    <string name="hiflying_smartlinker_new_module_found" formatted="false">Discover new modules: Mac-%s Ip-%s</string>
+    <string name="hiflying_smartlinker_no_wifi_connectivity">Geen wifi-verbinding</string>
+
+
+    <!-- 提示再按一次推出 -->
+    <string name="toast_notify_exit">Klik vervolgens op een exitprocedure</string>
+    <!-- 提示更新成功 -->
+    <string name="toast_update_success">Update succesvol</string>
+    <!-- 提示更新失败
+    <string name="toast_update_faile">Update failed,Network inaccessible</string>	修改 -->
+    <!-- 提示网络异常 -->
+    <string name="toast_network_anomaly">Netwerk anomalie</string>
+    <!-- 提示正在更新 -->
+    <string name="toast_being_update">Wordt bijgewerkt</string>
+    <!-- 连接设备 -->
+    <string name="alert_message_connect_device">Gelieve het apparaat aan te sluiten</string>
+    <!-- 弹窗确定 -->
+    <string name="alert_ok">OK</string>
+    <!-- 提示连接网络 -->
+    <string name="alert_message_connect_network">Maak verbinding met het netwerk!!</string>
+    <!-- 连接成功 -->
+    <string name="toast_connect_success">De verbinding is geslaagd</string>
+    <!-- 等待.... -->
+    <string name="alert_wait_">aan het wachten...</string>
+    <!-- 设备正在配置，请稍后 -->
+    <string name="alert_config_wait">Het apparaat is aan het configureren, wacht even...</string>
+    <!-- 确认WiFi无密码 -->
+    <string name="alert_message_sure_no_password">Controleer of de Wi-Fi-netwerkomgeving geen wachtwoord vereist</string>
+    <!-- 连接 -->
+    <string name="alert_button_connect">Aansluiten</string>
+    <!-- 取消 -->
+    <string name="alert_button_cancel">Annuleer</string>
+    <!-- 请连接WiFi -->
+    <string name="alert_message_connect_wifi">   Verbind alstublieft de wifi!!</string>
+    <!-- 配置失败 -->
+    <string name="alert_message_config_fail">Configuratie mislukt</string>
+    <!-- 确定 -->
+    <string name="alert_button_confirm">Bevestigen</string>
+
+    <!-- 找到新版本 -->
+    <string name="alert_title_new_version">Heb de nieuwe versie gevonden</string>
+    <!-- 是否更新 -->
+    <string name="alert_message_wether_update">Al dan niet updaten?</string>
+    <!-- 马上更新 -->
+    <string name="alert_button_update_now">Update nu</string>
+    <!-- 退出 -->
+    <string name="alert_button_exit">Uitgang</string>
+    <!-- 弹窗正在更新 -->
+    <string name="alert_button_being_update">Wordt bijgewerkt</string>
+    <!-- 正在下载 -->
+    <string name="alert_title_down_loading">downloaden...</string>
+    <!-- 请稍等 -->
+    <string name="alert_message_wiat">Even geduld alstublieft!</string>
+    <!-- 欢迎 -->
+    <string name="welcome_user_app">Welkom bij Wi-Fi Weather</string>
+
+
+    <!-- 界面的字符串 -->
+    <!-- WiFi名 -->
+    <string name="wifi_name">Wi-Fi Naam</string>
+    <!-- WiFi名 -->
+    <string name="wifi_password">Wi-Fi Wachtwoord</string>
+    <!-- WiFi密码-->
+    <string name="city_name">stad Naam</string>
+    <!-- 单位 C -->
+    <string name="unit">Eenheid</string>
+    <!-- 自动更新 -->
+    <string name="auto_update">Auto update</string>
+    <!-- 配置设备 -->
+    <string name="configura_device">Apparaat verbinden</string>
+    <!-- 单位 C -->
+    <string name="update_date">Bevestigen</string>
+    <!-- 闹钟设置 -->
+    <string name="alarm_setting">Alarm instelling</string>
+    <!-- 闹钟 -->
+    <string name="alarm">ALARM</string>
+    <!-- 贪睡 -->
+    <string name="snooze">SNOOZE</string>
+    <!-- 小时 -->
+    <string name="hour">Uur</string>
+    <!-- 确定 -->
+    <string name="yes">Ja</string>
+    <!-- 取消 -->
+    <string name="no">Nee</string>
+
+
+    <!-- 选择闹钟时间界面字符串 -->
+    <!-- 闹钟时间带冒号 -->
+    <string name="alarm_time_add">Alarm tijd:</string>
+    <!-- 闹钟时间不带冒号 -->
+    <string name="alarm_time">Alarm tijd</string>
+    <!-- 选择闹钟时间 -->
+    <string name="select_alarm_time">Selecteer Alarmtijd</string>
+    <!-- 开 -->
+    <string name="on">Aan</string>
+    <!-- 关 -->
+    <string name="off">Uit</string>
+    <!-- 周一到周日 -->
+    <string name="mo_to_su">elke dag</string>
+    <!-- 周一到周五 -->
+    <string name="mo_to_fr">elke weekdag</string>
+    <!-- 设置时间 -->
+    <string name="set_time">tijd instellen</string>
+    <!-- 闹钟带冒号 -->
+    <string name="alarm_add">Wekker:</string>
+    <!-- 贪睡带冒号 -->
+    <string name="snooze_add">dutten:</string>
+
+    <!-- popupwindow界面字符串 -->
+    <!-- 分享二维码 -->
+    <string name="share_barcode">Deel QR-code</string>
+    <!-- 温湿度 -->
+    <string name="temp_and_humidity">Temperatuur en vochtigheid</string>
+    <!-- 联系我们 -->
+    <string name="contact_us"> Neem contact met ons op</string>
+    <!-- 版本 -->
+
+    <!-- 主机的hint -->
+    <!-- 搜索 -->
+    <string name="hint_serch">Zoeken</string>
+    <!-- 密码 -->
+    <string name="hint_password">Wachtwoord</string>
+
+
+    <!-- 自定义View中的文字 -->
+    <!-- 室内温度 -->
+    <string name="indoor_temperature">Binnentemperatuur:  </string>
+    <!-- 室内湿度 -->
+    <string name="indoor_humidity">Luchtvochtigheid binnen:  </string>
+
+
+    <!-- 更新失败  更改  2017年1月11日16:03:53 -->
+    <string name="toast_update_faile">Update mislukt, Time-out netwerkaanmelding</string>
+
+    <!--
+    			定位功能添加的新的字符串
+     -->
+
+    <!-- 定位失败 -->
+    <string name="location_faild">Positionering mislukt</string>
+    <!-- 定位的城市 -->
+    <string name="location_city">Plaatsbepaling van de stad</string>
+    <!-- 定位成功未匹配城市弹窗   定位到的城市与本地数据不匹配，请手动选择城市 -->
+    <string name="no_match_city">Oriëntatie op de stad en de lokale gegevens komen niet overeen, selecteer de stad</string>
+
+    <!-- 正在定位请稍后 -->
+    <string name="local_later">Controleer de e-mailinstellingen</string>
+
+
+    <!-- 邮箱设置 -->
+    <string name="check_mail">Si prega di controllare le impostazioni di posta elettronica</string>
+
+
+    <!-- 修改界面 -->
+    <string name="alarm_setting_alarm">Wekker</string>
+    <string name="alarm_setting_setting">omgeving</string>
+
+
+    <!-- 新增调节亮度增加的字符串 -->
+    <!-- 显示天气预报一天还是两天 -->
+    <string name="display1">1 Dag</string>
+    <!-- 显示天气预报一天还是两天 -->
+    <string name="display3">3 dagen</string>
+    <string name="temp_and_humidity_indoor">Binnentemperatuur en vochtigheid</string>
+    <string name="temp_and_humidity_outdoor">Buitentemperatuur en vochtigheid</string>
+    <string name="outdoor_temperature">buitentemperatuur</string>
+    <string name="outdoor_humidity">buitenvochtigheid</string>
+    <string name="alert_message_missing_model">er is geen buitenapparatuur</string>
+    <string name="language_select">Taal selecteren</string>
+    <string name="chinese">Chinese</string>
+    <string name="english">Engels</string>
+    <string name="german">Duitse</string>
+    <string name="french">Frans</string>
+    <string name="russian">Russisch</string>
+    <string name="spanish">Spaans</string>
+    <string name="italian">Italiaans</string>
+    <string name="portuguese">Portugees</string>
+    <string name="dutch">Nederlands</string>
+    <string name="am">ben</string>
+    <string name="pm">p.m</string>
+    <string name="only">(Alleen 2.4G)</string>
+    <string name="checkNetwork">Netwerkuitzondering, controleer het netwerk!</string>
+    <string name="checkPermission">Android 8.1 en hoger systemen hebben GPS-toegang nodig om WiFi Weather te gebruiken Zijn GPS-machtigingen ingeschakeld?</string>
+    <!--  -->
+
+
+    <!--  -->
+
+
+    <!--  -->
+
+
+    <!--  -->
+
+
+    <string-array name="wendu">
+        <item> C </item>
+        <item> F </item>
+    </string-array>
+
+</resources>
